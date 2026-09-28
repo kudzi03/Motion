@@ -1,0 +1,13 @@
+# render intermediates (rebuildable from brag-output/work)
+brag-output/work/*.mp4
+brag-output/work/*.wav
+brag-output/work/*.png
+brag-output/work/cues.json
+brag-output/work/loudnorm1.json
+brag-output/work/stills/
+brag-output/work/qa/
+brag-output/work/poster/
+brag-output/work/reference/
+node_modules/
+__pycache__/
+.DS_Store
