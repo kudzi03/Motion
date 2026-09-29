@@ -1,0 +1,655 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>VelaBuilt — showreel</title>
+<meta name="viewport" content="width=1080">
+<style>
+@font-face { font-family: archivo; src: url(assets/archivo_var.woff2) format("woff2"); font-weight: 300 600; font-stretch: 100% 125%; }
+@font-face { font-family: geistMono; src: url(assets/geistmono_var.woff2) format("woff2"); font-weight: 400 500; }
+:root {
+  --void: #f4f1ec; --paper: #f7f5f1; --raised: #faf8f5;
+  --ink: #151412; --dim: #34322e; --muted: #5a564f; --faint: #8a857c;
+  --champagne: #7a4f15; --champ-lt: #e0c398; --amber: #e3892a;
+  --hair: #16151324; --hair-strong: #16151347;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--void); }
+body { width: 1080px; height: 1920px; overflow: hidden; font-family: archivo, sans-serif; font-weight: 380; color: var(--dim); -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; }
+#stage { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: radial-gradient(ellipse 120% 70% at 50% 35%, #f8f6f2 0%, #f3efe9 45%, #ebe6de 100%); }
+canvas { position: absolute; inset: 0; width: 1080px; height: 1920px; pointer-events: none; }
+.abs { position: absolute; }
+.scene { position: absolute; inset: 0; visibility: hidden; }
+.mono { font-family: geistMono, ui-monospace, monospace; text-transform: uppercase; letter-spacing: .2em; font-weight: 400; }
+.display { font-family: archivo; text-transform: uppercase; color: var(--ink); letter-spacing: .005em; font-weight: 400; font-stretch: 125%; line-height: .95; }
+.sentence { font-family: archivo; color: var(--dim); letter-spacing: -.005em; font-weight: 400; font-stretch: 108%; line-height: 1.2; }
+.dsm { font-family: archivo; color: var(--ink); font-weight: 480; font-stretch: 112%; line-height: 1.15; }
+.m { display: block; overflow: hidden; padding: .09em 0 .07em; margin: -.09em 0 -.07em; }
+.ln { display: inline-block; vertical-align: top; white-space: nowrap; will-change: transform; }
+
+/* brand bar */
+#brand { position: absolute; left: 72px; right: 72px; top: 84px; height: 72px; display: flex; align-items: center; justify-content: space-between; }
+#brand .lock { display: flex; align-items: center; gap: 20px; color: var(--ink); }
+#brand svg { height: 54px; width: auto; }
+.wordmark { font-family: archivo; letter-spacing: .2em; text-transform: uppercase; color: var(--ink); font-size: 32px; font-weight: 560; font-stretch: 125%; }
+#brand .url { font-size: 22px; color: var(--muted); letter-spacing: .16em; }
+
+/* windows that hold the real work */
+.win { position: absolute; overflow: hidden; isolation: isolate; z-index: 0; border-radius: 36px; background: #101010; box-shadow: 0 60px 120px -50px rgba(21,20,18,.55), 0 0 0 1.5px rgba(21,20,18,.14); }
+.win .shot { position: absolute; inset: 0; overflow: hidden; }
+.win .shot img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; object-fit: cover; transform-origin: 50% 50%; will-change: transform; }
+.tag { position: absolute; left: 28px; bottom: 28px; display: flex; align-items: center; gap: 14px; padding: 14px 20px 14px 18px; border-radius: 14px; background: rgba(12,12,11,.72); color: #f4f1ec; font-size: 21px; letter-spacing: .16em; -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px); white-space: nowrap; }
+.tag b { font-weight: 500; color: #fff; }
+.tag i { font-style: normal; color: var(--champ-lt); }
+.tag .pip { width: 10px; height: 10px; border-radius: 50%; background: var(--amber); flex: none; }
+
+/* hook */
+.guide { position: absolute; left: 0; width: 1080px; height: 1.5px; background: rgba(21,20,18,.16); transform-origin: left; }
+.guide .scan { position: absolute; top: -1px; height: 3.5px; width: 180px; background: linear-gradient(90deg, rgba(227,137,42,0), rgba(227,137,42,.9), rgba(227,137,42,0)); }
+.gidx { position: absolute; right: 72px; font-size: 20px; color: var(--faint); }
+.card { position: absolute; overflow: hidden; border-radius: 30px; background: #111; box-shadow: 0 50px 90px -40px rgba(21,20,18,.6), 0 0 0 1.5px rgba(21,20,18,.12); }
+.card img { width: 100%; height: 100%; object-fit: cover; object-position: top; display: block; }
+#uline { position: absolute; height: 10px; background: var(--amber); transform-origin: left; border-radius: 2px; }
+
+/* agent */
+#chat { position: absolute; left: 60px; top: 616px; width: 960px; height: 1250px; border-radius: 44px; background: var(--raised); box-shadow: 0 60px 120px -50px rgba(21,20,18,.45), 0 0 0 1.5px var(--hair); overflow: hidden; }
+#chat .hd { position: absolute; left: 0; right: 0; top: 0; height: 128px; padding: 0 40px; display: flex; align-items: center; gap: 22px; border-bottom: 1.5px solid var(--hair); background: rgba(247,245,241,.9); z-index: 2; }
+.orb { width: 64px; height: 64px; border-radius: 50%; background: radial-gradient(circle at 38% 34%, #ffe7c2 0%, #f0a650 38%, #7a4f15 100%); box-shadow: 0 0 0 6px rgba(227,137,42,.14); flex: none; }
+#chat .who { font-size: 34px; }
+#chat .sub { font-size: 20px; color: var(--muted); margin-top: 6px; display: flex; align-items: center; gap: 10px; }
+#chat .sub .live { width: 10px; height: 10px; border-radius: 50%; background: #3f9b5a; }
+#chat .demo { margin-left: auto; font-size: 18px; color: var(--faint); border: 1.5px solid var(--hair); padding: 10px 14px; border-radius: 10px; }
+#msgs { position: absolute; left: 36px; right: 36px; top: 128px; bottom: 36px; overflow: hidden; }
+#msgs-in { position: absolute; left: 0; right: 0; top: 10px; }
+.row { overflow: hidden; flex: none; }
+.row > div { padding-top: 20px; }
+.b { max-width: 700px; padding: 22px 28px; border-radius: 30px; font-size: 34px; line-height: 1.3; font-weight: 400; font-stretch: 104%; }
+.b.cust { margin-left: auto; background: var(--ink); color: #f5f2ec; border-bottom-right-radius: 10px; }
+.b.agent { background: #fff; color: var(--ink); border: 1.5px solid var(--hair); border-bottom-left-radius: 10px; }
+.alabel { font-size: 18px; color: var(--champagne); margin: 0 0 10px 6px; display: flex; gap: 10px; align-items: center; }
+.alabel .pip { width: 9px; height: 9px; border-radius: 50%; background: var(--amber); }
+.dots { display: inline-flex; gap: 10px; padding: 26px 30px; background: #fff; border: 1.5px solid var(--hair); border-radius: 30px; border-bottom-left-radius: 10px; }
+.dots i { width: 13px; height: 13px; border-radius: 50%; background: var(--muted); display: block; }
+.qcard { display: flex; gap: 30px; align-items: center; padding: 26px 30px; border-radius: 28px; background: #f1ece3; border: 1.5px solid rgba(122,79,21,.22); }
+.ring { position: relative; width: 132px; height: 132px; flex: none; }
+.ring svg { position: absolute; inset: 0; }
+.ring .num { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+.ring .num b { font-family: archivo; font-stretch: 112%; font-weight: 500; font-size: 46px; color: var(--ink); line-height: 1; }
+.ring .num span { font-size: 17px; color: var(--champagne); margin-top: 6px; }
+.reasons { display: grid; gap: 10px; font-size: 26px; color: var(--dim); }
+.reasons div { display: flex; gap: 16px; align-items: baseline; }
+.reasons em { font-family: geistMono; font-style: normal; font-size: 22px; color: var(--champagne); width: 58px; }
+.qtitle { font-size: 20px; color: var(--champagne); margin-bottom: 12px; }
+.slots { display: flex; gap: 16px; margin-top: 18px; }
+.slot { position: relative; overflow: hidden; padding: 18px 26px; border-radius: 18px; border: 1.5px solid var(--hair-strong); font-size: 26px; color: var(--ink); background: #faf8f5; }
+.slot .fillb { position: absolute; inset: 0; background: var(--ink); transform-origin: left; }
+.slot span { position: relative; }
+.ripple { position: absolute; width: 60px; height: 60px; margin: -30px 0 0 -30px; border-radius: 50%; border: 3px solid var(--amber); }
+#toast { position: absolute; left: 36px; right: 36px; bottom: 36px; height: 112px; border-radius: 26px; background: var(--ink); color: #f4f1ec; display: flex; align-items: center; gap: 22px; padding: 0 32px; z-index: 3; }
+#toast .ck { width: 46px; height: 46px; border-radius: 50%; background: var(--amber); display: grid; place-content: center; color: var(--ink); font-size: 26px; font-weight: 600; }
+#toast .t1 { font-size: 30px; font-weight: 500; font-stretch: 108%; }
+#toast .t2 { font-size: 19px; color: #cfc9bf; margin-top: 6px; }
+
+/* system flow */
+.node { position: absolute; left: 72px; right: 72px; height: 120px; display: flex; align-items: center; }
+.node .dot { position: absolute; left: 22px; top: 50%; width: 36px; height: 36px; margin-top: -18px; border-radius: 50%; border: 2.5px solid var(--hair-strong); background: var(--paper); }
+.node .dot i { position: absolute; inset: 5px; border-radius: 50%; background: var(--ink); transform: scale(0); }
+.node .nm { margin-left: 96px; font-size: 50px; letter-spacing: .01em; text-transform: uppercase; }
+.node .det { margin-left: auto; font-size: 20px; color: var(--muted); }
+#rail { position: absolute; left: 111px; width: 2.5px; background: var(--hair-strong); }
+#rail .fill { position: absolute; left: 0; top: 0; width: 100%; background: var(--ink); transform-origin: top; }
+#pulse { position: absolute; width: 22px; height: 22px; margin: -11px 0 0 -11px; border-radius: 50%; background: var(--amber); box-shadow: 0 0 0 10px rgba(227,137,42,.18), 0 0 26px 6px rgba(227,137,42,.45); }
+
+/* proof */
+.full { position: absolute; inset: 0; overflow: hidden; background: var(--void); }
+.full .ia { position: absolute; left: 0; top: 356px; width: 1080px; height: 1564px; overflow: hidden; background: #0d0d0c; }
+.full img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; object-fit: cover; will-change: transform; }
+.full .band { position: absolute; left: 0; right: 0; top: 0; height: 356px; }
+.full .band .k { position: absolute; left: 72px; top: 186px; font-size: 21px; color: var(--champagne); }
+.full .band .n { position: absolute; left: 72px; top: 222px; font-family: archivo; font-stretch: 125%; text-transform: uppercase; font-size: 54px; line-height: 1; color: var(--ink); font-weight: 420; white-space: nowrap; }
+.full .band .d { position: absolute; left: 72px; top: 296px; font-size: 20px; color: var(--muted); letter-spacing: .16em; white-space: nowrap; }
+#pmark { position: absolute; left: 72px; top: 84px; color: var(--ink); display: flex; gap: 18px; align-items: center; }
+#pmark svg { height: 46px; }
+#pmark .wordmark { font-size: 28px; }
+#pcount { position: absolute; right: 72px; top: 186px; color: var(--muted); font-size: 22px; }
+
+/* positioning */
+.pw { position: absolute; left: 72px; display: flex; align-items: center; gap: 26px; }
+.pw .pd { width: 22px; height: 22px; border-radius: 50%; background: var(--ink); flex: none; }
+.pw .t { font-size: 76px; }
+.mod { position: absolute; font-size: 21px; color: var(--dim); padding: 10px 16px; border-radius: 10px; background: rgba(250,248,245,.9); border: 1.5px solid var(--hair); white-space: nowrap; transform: translate(-50%, -50%); }
+
+/* end */
+#end-mark { position: absolute; left: 50%; top: 600px; width: 210px; margin-left: -105px; color: var(--ink); }
+#end-word { position: absolute; left: 0; right: 0; top: 880px; text-align: center; font-size: 64px; }
+#end-line { position: absolute; left: 0; right: 0; top: 1016px; text-align: center; font-size: 58px; color: var(--ink); }
+#end-url { position: absolute; left: 0; right: 0; top: 1166px; text-align: center; font-size: 46px; color: var(--ink); letter-spacing: .12em; font-weight: 500; }
+#end-rule { position: absolute; left: 50%; top: 1246px; width: 470px; margin-left: -235px; height: 2px; background: var(--amber); transform-origin: center; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <canvas id="wire"></canvas>
+
+  <!-- 01 hook -->
+  <section class="scene" id="s1">
+    <div id="guides"></div>
+    <h1 class="display abs" id="h1" data-fit="915" style="left:72px; top:236px; font-size:124px">
+      <span class="m"><span class="ln">We build</span></span>
+      <span class="m"><span class="ln">the systems</span></span>
+      <span class="m"><span class="ln">a business</span></span>
+      <span class="m"><span class="ln">runs on.</span></span>
+    </h1>
+    
+    <div class="card" id="cardL"><img src="assets/db-intro-v.webp" alt=""></div>
+    <div class="card" id="cardR"><img src="assets/c-vert.webp" alt=""></div>
+  </section>
+
+  <!-- the window: grows out of the hook, holds the websites, becomes the agent -->
+  <div class="win" id="win" style="visibility:hidden">
+    <div id="win-veil" style="position:absolute;inset:0;background:#faf8f5;z-index:9;opacity:0"></div>
+    <div class="shot" id="w-k"><img src="assets/k-hero.webp" alt="" style="object-position:50% 0%"><div class="tag mono"><span class="pip"></span><b>Kingson Engineering</b> · steelwork · Harare · <i>client work</i></div></div>
+    <div class="shot" id="w-db"><img src="assets/db-intro-v.webp" alt="" style="object-position:50% 0%"><div class="tag mono"><span class="pip"></span><b>DreamBuilder</b> · 3D showroom · <i>VelaBuilt demo</i></div></div>
+    <div class="shot" id="w-c"><img src="assets/c-vert.webp" alt="" style="object-position:50% 0%"><div class="tag mono"><span class="pip"></span><b>Cardio Life</b> · training · Botswana · <i>client work</i></div></div>
+  </div>
+
+  <!-- 02 websites -->
+  <section class="scene" id="s2">
+    <h2 class="display abs" id="h2" data-fit="936" style="left:72px; top:196px; font-size:118px">
+      <span class="m"><span class="ln">Websites</span></span>
+      <span class="m"><span class="ln">that work.</span></span>
+    </h2>
+  </section>
+
+  <!-- 03 agent -->
+  <section class="scene" id="s3">
+    <div class="display abs" id="h3a" style="left:72px; top:188px; font-size:46px; color:var(--muted)"><span class="m"><span class="ln">Agents that</span></span></div>
+    <div class="display abs" id="h3" style="left:72px; top:250px; font-size:104px">
+      <span class="m"><span class="ln">Answer.</span></span>
+      <span class="m"><span class="ln">Qualify.</span></span>
+      <span class="m"><span class="ln">Act.</span></span>
+    </div>
+    <div id="chat">
+      <div class="hd"><div class="orb"></div><div><div class="dsm who">Your Roofing Co.</div><div class="sub mono"><span class="live"></span>AI agent · online</div></div><div class="demo mono">System demo</div></div>
+      <div id="msgs"><div id="msgs-in">
+        <div class="row" id="m1"><div><div class="b cust">Our roof is leaking in two places. Can someone look at it this week?</div></div></div>
+        <div class="row" id="m2t"><div><div class="alabel mono"><span class="pip"></span>AI agent</div><div class="dots"><i></i><i></i><i></i></div></div></div>
+        <div class="row" id="m2"><div><div class="alabel mono"><span class="pip"></span>AI agent</div><div class="b agent">Sorry to hear that. Is it pitched or flat, and roughly how old?</div></div></div>
+        <div class="row" id="m3"><div><div class="b cust">Pitched. About 20 years.</div></div></div>
+        <div class="row" id="m4"><div><div class="qcard"><div class="ring"><svg viewBox="0 0 132 132"><circle cx="66" cy="66" r="56" fill="none" stroke="rgba(122,79,21,.18)" stroke-width="10"/><circle id="ringArc" cx="66" cy="66" r="56" fill="none" stroke="#e3892a" stroke-width="10" stroke-linecap="round" transform="rotate(-90 66 66)" stroke-dasharray="351.86" stroke-dashoffset="351.86"/></svg><div class="num"><b id="ringNum">0</b><span class="mono">Hot</span></div></div><div><div class="qtitle mono">Lead qualified</div><div class="reasons"><div><em>+25</em>Active leak</div><div><em>+20</em>Roof 20+ years old</div><div><em>+15</em>Wants it this week</div></div></div></div></div></div>
+        <div class="row" id="m5"><div><div class="alabel mono"><span class="pip"></span>AI agent</div><div class="b agent">That points to a replacement check. Free inspection — which suits you?<div class="slots"><div class="slot" id="slotA"><div class="fillb"></div><span>Thu · 10:00</span></div><div class="slot"><span>Fri · 14:00</span></div></div></div></div></div>
+      </div></div>
+      <div class="ripple" id="ripple"></div>
+      <div id="toast"><div class="ck">✓</div><div><div class="t1">Inspection booked · Thu 10:00</div><div class="t2 mono">Lead captured · added to CRM</div></div></div>
+    </div>
+  </section>
+
+  <!-- 04 system -->
+  <section class="scene" id="s4">
+    <div class="mono abs" id="s4k" style="left:72px; top:206px; font-size:22px; color:var(--muted)">One enquiry · end to end</div>
+    <div id="rail"><div class="fill"></div></div>
+    <div class="node" id="n1"><div class="dot"><i></i></div><div class="dsm nm">New enquiry</div><div class="det mono">Website</div></div>
+    <div class="node" id="n2"><div class="dot"><i></i></div><div class="dsm nm">AI response</div><div class="det mono">Agent</div></div>
+    <div class="node" id="n3"><div class="dot"><i></i></div><div class="dsm nm">Lead captured</div><div class="det mono">CRM</div></div>
+    <div class="node" id="n4"><div class="dot"><i></i></div><div class="dsm nm">Follow-up</div><div class="det mono">WhatsApp · email</div></div>
+    <div class="node" id="n5"><div class="dot"><i></i></div><div class="dsm nm">Booked</div><div class="det mono">Calendar</div></div>
+    <div id="pulse"></div>
+    <div class="win" id="swin">
+      <div class="shot" id="sw1"><img src="assets/db-qualify-v.webp" alt="" style="object-position:50% 30%"></div>
+      <div class="shot" id="sw2"><img src="assets/agent-card.webp" alt="" style="object-position:50% 100%"></div>
+      <div class="shot" id="sw3"><img src="assets/db-crm-v.webp" alt="" style="object-position:50% 70%"></div>
+      <div class="shot" id="sw4"><img src="assets/db-follow-v.webp" alt="" style="object-position:50% 55%"></div>
+      <div class="shot" id="sw5"><img src="assets/db-job-v.webp" alt="" style="object-position:50% 52%"></div>
+      <div class="tag mono" id="swtag"><span class="pip"></span><b>DreamBuilder</b> · the real flow · <i>sample data</i></div>
+    </div>
+  </section>
+
+  <!-- 05 proof -->
+  <section class="scene" id="s5">
+    <div class="full" id="p1"><div class="band"><div class="k mono">VelaBuilt demo · sample pricing</div><div class="n">3D steel configurator</div><div class="d mono">DreamBuilder · configure → estimate → quote</div></div><div class="ia"><img src="assets/db-steel-v.webp" alt="" style="object-position:50% 47%"></div></div>
+    <div class="full" id="p2"><div class="band"><div class="k mono">Client work</div><div class="n">Kingson Engineering</div><div class="d mono">Steelwork specialists · Harare</div></div><div class="ia"><img src="assets/k-crane.webp" alt="" style="object-position:50% 0%"></div></div>
+    <div class="full" id="p3"><div class="band"><div class="k mono">VelaBuilt demo · sample pricing</div><div class="n">Real-time 3D kitchen</div><div class="d mono">DreamBuilder · the price moves as they choose</div></div><div class="ia"><img src="assets/db-kitchen-v.webp" alt="" style="object-position:50% 37%"></div></div>
+    <div class="full" id="p4"><div class="band"><div class="k mono">VelaBuilt demo</div><div class="n">Six trades, one house</div><div class="d mono">Remodel · roofing · steel · solar · outdoor · HVAC</div></div><div class="ia"><img src="assets/db-outdoor-v.webp" alt="" style="object-position:50% 37%"></div></div>
+    <div class="mono" id="pcount">01 / 04</div>
+  </section>
+
+  <!-- 06 positioning -->
+  <section class="scene" id="s6">
+    <div class="pw" id="pw1" style="top:250px"><span class="pd"></span><span class="display t">Websites.</span></div>
+    <div class="pw" id="pw2" style="top:360px"><span class="pd"></span><span class="display t">AI agents.</span></div>
+    <div class="pw" id="pw3" style="top:470px"><span class="pd"></span><span class="display t">Business systems.</span></div>
+    <div id="mods"></div>
+  </section>
+
+  <!-- 07 end -->
+  <section class="scene" id="s7">
+    <svg id="end-mark" viewBox="17 20 66 80"><use href="#markpaths"/></svg>
+    <div class="wordmark" id="end-word">VelaBuilt</div>
+    <div class="sentence" id="end-line">Tell us what you’re building.</div>
+    <div class="mono" id="end-url">velabuilt.com</div>
+    <div id="end-rule"></div>
+  </section>
+
+  <div id="brand">
+    <div class="lock"><svg viewBox="17 20 66 80" aria-hidden="true"><use href="#markpaths"/></svg><span class="wordmark">VelaBuilt</span></div>
+    <span class="url mono">velabuilt.com</span>
+  </div>
+  <canvas id="fx"></canvas>
+</div>
+
+<svg width="0" height="0" style="position:absolute"><defs><g id="markpaths" fill="currentColor">
+  <path d="M21.2 28.2 L29.0 31.8 L50.8 90.2 L46.2 96.8 Z"/>
+  <path d="M45.0 24.6 C63.0 22.2 74.6 30.2 72.6 42.2 C70.8 51.6 62.6 57.0 53.6 57.8 C61.0 51.8 66.2 44.6 64.8 37.4 C63.4 30.6 55.4 25.8 45.0 24.6 Z"/>
+  <path d="M51.0 59.4 C70.4 57.2 82.4 66.4 79.8 79.4 C77.4 91.0 66.0 96.6 54.4 95.6 C64.8 90.0 71.4 81.4 69.8 72.6 C68.2 64.6 61.4 60.4 51.0 59.4 Z"/>
+</g></defs></svg>
+
+<script>
+// ---------------------------------------------------------------------------
+// Every frame is a pure function of t. Scene windows follow the brief:
+// hook 0–2 · craft 2–6 · intelligence 6–10 · system 10–15 · proof 15–19 · positioning 19–22 · brand 22–25
+// ---------------------------------------------------------------------------
+const W = 1080, H = 1920, FPS = 30, DURATION = 25.0;
+const T = { hook: 0, web: 2.0, agent: 6.0, sys: 10.0, proof: 15.0, pos: 19.0, end: 22.0 };
+const CUES = [];
+const cue = (t, type, extra = {}) => CUES.push({ t: +t.toFixed(3), type, ...extra });
+
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, x) => a + (b - a) * x;
+function bezier(x1, y1, x2, y2) {
+  const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx, cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
+  const sx = t => ((ax * t + bx) * t + cx) * t, sy = t => ((ay * t + by) * t + cy) * t, dx = t => (3 * ax * t + 2 * bx) * t + cx;
+  return x => { if (x <= 0) return 0; if (x >= 1) return 1; let t = x; for (let i = 0; i < 8; i++) { const e = sx(t) - x, d = dx(t); if (Math.abs(e) < 1e-6 || Math.abs(d) < 1e-6) break; t -= e / d; } let lo = 0, hi = 1; if (Math.abs(sx(t) - x) > 1e-5) { t = x; for (let i = 0; i < 30; i++) { const v = sx(t); if (Math.abs(v - x) < 1e-6) break; if (v < x) lo = t; else hi = t; t = (lo + hi) / 2; } } return sy(t); };
+}
+const cin = bezier(.16, 1, .3, 1), inOut = bezier(.65, 0, .35, 1), exitE = bezier(.55, 0, .75, .2), soft = bezier(.33, 0, .2, 1), snap = bezier(.2, .9, .1, 1);
+const prog = (t, a, d, e = cin) => e(clamp((t - a) / d));
+function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const $ = s => document.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const vis = (el, on) => { el.style.visibility = on ? 'visible' : 'hidden'; };
+const show = (id, t, a, b) => { const el = $(id), on = t >= a && t < b; el.style.display = on ? 'block' : 'none'; el.style.visibility = on ? 'visible' : 'hidden'; return on; };
+function linesIn(el, t, tin, tout, o = {}) {
+  const { stagger = .08, dur = .8, outDur = .38, outStagger = .04, e = cin } = o;
+  $$('.ln', el).forEach((ln, i) => {
+    const pin = prog(t, tin + i * stagger, dur, e), pout = tout == null ? 0 : prog(t, tout + i * outStagger, outDur, exitE);
+    ln.style.transform = `translate3d(0, ${((1 - pin) * 115 - pout * 115).toFixed(3)}%, 0)`;
+  });
+}
+function fade(el, t, tin, tout, o = {}) {
+  const { dy = 30, dx = 0, dur = .7, outDur = .32, outDy = -20, scale0 = 1, op = .3, outOp = .22, e = cin } = o;
+  const pin = prog(t, tin, dur, e), pout = tout == null ? 0 : prog(t, tout, outDur, exitE);
+  const oin = soft(clamp((t - tin) / op)), oout = tout == null ? 0 : clamp((t - tout) / outOp);
+  el.style.opacity = (oin * (1 - oout)).toFixed(4);
+  el.style.transform = `translate3d(${((1 - pin) * dx).toFixed(2)}px, ${((1 - pin) * dy + pout * outDy).toFixed(2)}px, 0) scale(${lerp(scale0, 1, pin).toFixed(4)})`;
+}
+const box = (el, r) => { el.style.left = r.x.toFixed(2) + 'px'; el.style.top = r.y.toFixed(2) + 'px'; el.style.width = r.w.toFixed(2) + 'px'; el.style.height = r.h.toFixed(2) + 'px'; };
+const lerpBox = (a, b, x) => ({ x: lerp(a.x, b.x, x), y: lerp(a.y, b.y, x), w: lerp(a.w, b.w, x), h: lerp(a.h, b.h, x) });
+
+// ---------------------------------------------------------------------------
+// canvases (device-pixel aware for the supersampled master)
+// ---------------------------------------------------------------------------
+const DPR = window.devicePixelRatio || 1;
+const ctx = (() => { const c = $('#wire'); c.width = W * DPR; c.height = H * DPR; const x = c.getContext('2d'); x.scale(DPR, DPR); return x; })();
+const fx = (() => { const c = $('#fx'); c.width = W * DPR; c.height = H * DPR; const x = c.getContext('2d'); x.scale(DPR, DPR); return x; })();
+
+// the wireframe polyhedron with an amber core, as on velabuilt.com
+const R0 = rng(7);
+const norm = v => { const l = Math.hypot(v[0], v[1], v[2]); return [v[0] / l, v[1] / l, v[2] / l]; };
+function icosphere(sub) {
+  const g = (1 + Math.sqrt(5)) / 2;
+  let V = [[-1, g, 0], [1, g, 0], [-1, -g, 0], [1, -g, 0], [0, -1, g], [0, 1, g], [0, -1, -g], [0, 1, -g], [g, 0, -1], [g, 0, 1], [-g, 0, -1], [-g, 0, 1]].map(norm);
+  let F = [[0, 11, 5], [0, 5, 1], [0, 1, 7], [0, 7, 10], [0, 10, 11], [1, 5, 9], [5, 11, 4], [11, 10, 2], [10, 7, 6], [7, 1, 8], [3, 9, 4], [3, 4, 2], [3, 2, 6], [3, 6, 8], [3, 8, 9], [4, 9, 5], [2, 4, 11], [6, 2, 10], [8, 6, 7], [9, 8, 1]];
+  for (let s = 0; s < sub; s++) { const cache = {}, nf = []; const mid = (a, b) => { const k = a < b ? a + '_' + b : b + '_' + a; if (cache[k] != null) return cache[k]; V.push(norm([V[a][0] + V[b][0], V[a][1] + V[b][1], V[a][2] + V[b][2]])); return cache[k] = V.length - 1; }; for (const [a, b, c] of F) { const ab = mid(a, b), bc = mid(b, c), ca = mid(c, a); nf.push([a, ab, ca], [b, bc, ab], [c, ca, bc], [ab, bc, ca]); } F = nf; }
+  const E = new Set(); for (const [a, b, c] of F) for (const [x, y] of [[a, b], [b, c], [c, a]]) E.add(x < y ? x + '_' + y : y + '_' + x);
+  return { V, E: [...E].map(k => k.split('_').map(Number)) };
+}
+const geo = icosphere(2), NV = geo.V.length;
+const SPH = geo.V.map(v => { const r = 1 + (R0() - .5) * .2; return norm([v[0] + (R0() - .5) * .09, v[1] + (R0() - .5) * .09, v[2] + (R0() - .5) * .09]).map(c => c * r); });
+const SCAT = SPH.map(() => [(R0() - .5) * 4.2, (R0() - .5) * 5.2, (R0() - .5) * 3]);
+const chords = []; while (chords.length < 40) { const a = Math.floor(R0() * NV), b = Math.floor(R0() * NV); if (a === b) continue; const d = Math.hypot(SPH[a][0] - SPH[b][0], SPH[a][1] - SPH[b][1], SPH[a][2] - SPH[b][2]); if (d > .55 && d < 1.25) chords.push([a, b]); }
+const EDGES = geo.E.concat(chords), EREST = EDGES.map(([a, b]) => Math.hypot(SPH[a][0] - SPH[b][0], SPH[a][1] - SPH[b][1], SPH[a][2] - SPH[b][2]));
+const DEL = geo.V.map(() => R0()), HUB = geo.V.map(() => R0() < .16);
+const PARTS = Array.from({ length: 30 }, () => { const d = norm([R0() - .5, R0() - .5, R0() - .5]); const r = Math.pow(R0(), .7) * .5; return { p: [d[0] * r, d[1] * r, d[2] * r], ph: R0() * 6.28, s: .6 + R0() * .8 }; });
+
+// where the sphere is, how formed, how visible — by scene
+function sphereState(t) {
+  // hook: formed, lower half, visible from frame 0; leaves as the window opens
+  if (t < 3) return { cx: 540, cy: 1270, R: 230, form: 1, a: 1 - prog(t, 1.45, .45, soft), core: 1, dial: 1 - prog(t, 1.45, .4) };
+  // positioning: assembles from the connections, then collapses into the mark
+  if (t >= T.pos - .2 && t < T.end + .6) {
+    const f = prog(t, T.pos + 1.0, 1.1, cin);
+    const k = prog(t, T.end - .45, .6, inOut);
+    return { cx: 540, cy: lerp(1210, 727, k), R: lerp(250, 18, k), form: f, a: prog(t, T.pos + .9, .3, soft) * (1 - prog(t, T.end - .1, .35, soft)), core: prog(t, T.pos + 1.9, .5, soft), dial: prog(t, T.pos + 1.6, .6) * (1 - k) };
+  }
+  return null;
+}
+function drawWire(t) {
+  ctx.clearRect(0, 0, W, H);
+  const st = sphereState(t); if (!st || st.a < .005) return;
+  const { cx, cy, R, form, a: GA, core } = st;
+  const yaw = .6 + t * .32, pitch = .32, cyw = Math.cos(yaw), syw = Math.sin(yaw), cp = Math.cos(pitch), sp = Math.sin(pitch), D = 4.4;
+  const PX = new Float32Array(NV), PY = new Float32Array(NV), PZ = new Float32Array(NV), PS = new Float32Array(NV), P3 = [];
+  for (let i = 0; i < NV; i++) {
+    const xi = clamp((form - DEL[i] * .3) / .7), e = cin(xi);
+    const x = lerp(SCAT[i][0], SPH[i][0], e), y = lerp(SCAT[i][1], SPH[i][1], e), z = lerp(SCAT[i][2], SPH[i][2], e); P3[i] = [x, y, z];
+    const x1 = x * cyw - z * syw, z1 = x * syw + z * cyw, y2 = y * cp - z1 * sp, z2 = y * sp + z1 * cp, s = D / (D + z2);
+    PX[i] = cx + x1 * R * s; PY[i] = cy - y2 * R * s; PZ[i] = z2; PS[i] = s;
+  }
+  const dA = z => lerp(1, .25, clamp((z + 1.1) / 2.2));
+  if (st.dial > .01) {
+    ctx.save(); ctx.globalAlpha = st.dial * GA; ctx.strokeStyle = 'rgba(21,20,18,.36)'; ctx.lineWidth = 1.8; ctx.beginPath();
+    const N = 150, rd = R * 1.42; for (let i = 0; i < N; i++) { const ang = -Math.PI / 2 + i / N * Math.PI * 2 + t * .03, len = i % 10 === 0 ? 20 : 12; ctx.moveTo(cx + Math.cos(ang) * rd, cy + Math.sin(ang) * rd); ctx.lineTo(cx + Math.cos(ang) * (rd + len), cy + Math.sin(ang) * (rd + len)); }
+    ctx.stroke(); ctx.globalAlpha = st.dial * GA * .5; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.arc(cx, cy, R * 2.0, 0, Math.PI * 2); ctx.stroke(); ctx.restore();
+  }
+  if (core > .01) {
+    let g = ctx.createRadialGradient(cx, cy, 0, cx, cy, R * .62); g.addColorStop(0, `rgba(58,44,30,${.26 * core * GA})`); g.addColorStop(1, 'rgba(58,44,30,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, R * .62, 0, 7); ctx.fill();
+    g = ctx.createRadialGradient(cx, cy, 0, cx, cy, R * .42); g.addColorStop(0, `rgba(240,160,70,${.45 * core * GA})`); g.addColorStop(1, 'rgba(240,160,70,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(cx, cy, R * .42, 0, 7); ctx.fill();
+  }
+  const BK = 7, bk = Array.from({ length: BK }, () => []);
+  for (let e = 0; e < EDGES.length; e++) {
+    const [i, j] = EDGES[e]; const L = Math.hypot(P3[i][0] - P3[j][0], P3[i][1] - P3[j][1], P3[i][2] - P3[j][2]);
+    const a = Math.min(dA(PZ[i]), dA(PZ[j])) * clamp(1 - (L - EREST[e] * 1.35) / (EREST[e] * 1.6)) * (e >= geo.E.length ? .45 : 1);
+    if (a > .02) bk[Math.min(BK - 1, Math.floor(a * BK))].push(i, j);
+  }
+  ctx.lineCap = 'round';
+  for (let b = 0; b < BK; b++) { const L = bk[b]; if (!L.length) continue; const a = (b + .5) / BK; ctx.strokeStyle = `rgba(21,20,18,${(a * .92 * GA).toFixed(3)})`; ctx.lineWidth = lerp(1.2, 1.9, a); ctx.beginPath(); for (let k = 0; k < L.length; k += 2) { ctx.moveTo(PX[L[k]], PY[L[k]]); ctx.lineTo(PX[L[k + 1]], PY[L[k + 1]]); } ctx.stroke(); }
+  for (let i = 0; i < NV; i++) { const a = dA(PZ[i]) * GA; if (a < .05) continue; ctx.fillStyle = `rgba(21,20,18,${(a * .9).toFixed(3)})`; ctx.beginPath(); ctx.arc(PX[i], PY[i], (HUB[i] ? 3.8 : 2.5) * PS[i], 0, 7); ctx.fill(); }
+  if (core > .01) {
+    const c2 = Math.cos(yaw * 1.35), s2 = Math.sin(yaw * 1.35);
+    for (const q of PARTS) { const [x, y, z] = q.p; const x1 = x * c2 - z * s2, z1 = x * s2 + z * c2, y2 = y * cp - z1 * sp, z2 = y * sp + z1 * cp, s = D / (D + z2); const X = cx + x1 * R * s, Y = cy - y2 * R * s; const al = core * GA * (.55 + .45 * Math.sin(t * 2.6 + q.ph)), rad = (7 + 9 * q.s) * s * (R / 250);
+      const g = ctx.createRadialGradient(X, Y, 0, X, Y, rad); g.addColorStop(0, `rgba(255,236,200,${al})`); g.addColorStop(.35, `rgba(245,168,74,${.6 * al})`); g.addColorStop(1, 'rgba(245,168,74,0)'); ctx.fillStyle = g; ctx.beginPath(); ctx.arc(X, Y, rad, 0, 7); ctx.fill(); }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// brand bar
+// ---------------------------------------------------------------------------
+function brand(t) {
+  const on = t < T.end - .3;
+  const el = $('#brand');
+  vis(el, on);
+  const o = 1 - prog(t, T.end - .6, .3, soft);
+  el.style.opacity = o.toFixed(3);
+}
+
+// ---------------------------------------------------------------------------
+// 01 HOOK — frame 0 is already the message
+// ---------------------------------------------------------------------------
+const GUIDE_Y = [];
+function buildGuides() {
+  const h = $('#h1'), top = h.offsetTop, lh = parseFloat(h.style.fontSize) * .95;
+  const g = $('#guides'); g.innerHTML = '';
+  for (let i = 0; i <= 4; i++) {
+    const y = top + i * lh + (i ? -2 : 4); GUIDE_Y.push(y);
+    g.insertAdjacentHTML('beforeend', `<div class="guide" style="top:${y}px"><div class="scan"></div></div>`);
+  }
+  g.insertAdjacentHTML('beforeend', `<div class="guide" style="top:0; left:70px; width:1.5px; height:1920px; transform-origin:top"></div>`);
+}
+const HOOK_SHIFT = [46, -38, 30, -24];
+function s1(t) {
+  show('#s1', t, 0, 2.2);
+  const out = 1.6;
+  // frame 0 is already composed and readable; the type settles its tracking on the first beats
+  $$('#h1 .ln').forEach((ln, i) => {
+    const lock = prog(t, i * .08, .7, cin);
+    const pout = prog(t, out + i * .03, .3, exitE);
+    ln.style.letterSpacing = lerp(.022, .005, lock).toFixed(4) + 'em';
+    ln.style.transform = `translate3d(0, ${(-pout * 115).toFixed(2)}%, 0)`;
+  });
+  // drafting guides: present at frame 0, a scan sweeps each baseline on the beat
+  $$('#guides .guide').forEach((g, i) => {
+    const sc = g.querySelector('.scan');
+    if (sc) { const p = prog(t, .05 + i * .1, .7, soft); sc.style.left = lerp(-200, 1100, p).toFixed(1) + 'px'; sc.style.opacity = (Math.sin(Math.PI * p)).toFixed(3); }
+    g.style.opacity = (1 - prog(t, out - .1, .3, soft)).toFixed(3);
+  });
+  $$('#guides .gidx').forEach(x => (x.style.opacity = (1 - prog(t, out - .1, .3, soft)).toFixed(3)));
+  // amber underline under SYSTEMS
+  // real work deals in beneath on the beat
+  const deal = (el, t0, x, rot) => {
+    const p = prog(t, t0, .6, cin), o = prog(t, out - .05, .3, exitE);
+    el.style.left = `${x}px`; el.style.top = `${1010 + (1 - p) * 820 + o * 120}px`; el.style.width = '380px'; el.style.height = '700px';
+    el.style.transform = `rotate(${(rot * p).toFixed(3)}deg)`; el.style.opacity = ((p > 0 ? 1 : 0) * (1 - o)).toFixed(3);
+  };
+  deal($('#cardL'), .82, 118, -9); deal($('#cardR'), .98, 582, 9);
+}
+cue(0, 'hook'); [0, .1, .2, .3].forEach(x => cue(x + .3, 'lock')); cue(.82, 'deal'); cue(.98, 'deal'); cue(1.14, 'deal'); cue(1.55, 'riser', { to: 2.0 });
+
+// ---------------------------------------------------------------------------
+// the window: centre card of the hook → websites → the agent card
+// ---------------------------------------------------------------------------
+const R_CARD = { x: 350, y: 1010, w: 380, h: 700 }, R_WIN = { x: 36, y: 470, w: 1008, h: 1414 }, R_CHAT = { x: 60, y: 616, w: 960, h: 1250 };
+const SHOTS = [['#w-k', 2.0, 3.5], ['#w-db', 3.5, 4.75], ['#w-c', 4.75, 6.4]];
+function win(t) {
+  const el = $('#win');
+  const on = t >= 1.14 && t < T.agent + .45; el.style.display = on ? 'block' : 'none'; vis(el, on); if (!on) return;
+  // hook: deals in with the other cards
+  let r, rad = 30;
+  if (t < 1.7) { const p = prog(t, 1.14, .6, cin); r = { ...R_CARD, y: R_CARD.y + (1 - p) * 820 }; el.style.opacity = '1'; }
+  else if (t < T.agent - .25) { const p = prog(t, 1.7, .5, inOut); r = lerpBox(R_CARD, R_WIN, p); rad = lerp(30, 36, p); }
+  else { const p = prog(t, T.agent - .25, .55, inOut); r = lerpBox(R_WIN, R_CHAT, p); rad = lerp(36, 44, p); el.style.opacity = (1 - prog(t, T.agent + .25, .15, soft)).toFixed(3); }
+  $('#win-veil').style.opacity = prog(t, T.agent - .2, .32, soft).toFixed(3);
+  box(el, r); el.style.borderRadius = rad + 'px';
+  // cuts inside the window: new shot wipes up over the old, then pushes in
+  SHOTS.forEach(([id, a, b], i) => {
+    const s = $(id), img = s.querySelector('img'), tag = s.querySelector('.tag');
+    const start = i === 0 ? 0 : a;
+    const onS = t >= start && t < b + .5; vis(s, onS); if (!onS) return;
+    const wipe = i === 0 ? 1 : prog(t, a, .42, inOut);
+    s.style.clipPath = `inset(${((1 - wipe) * 100).toFixed(2)}% 0 0 0)`; s.style.zIndex = i + 1;
+    const local = clamp((t - a) / (b - a + .5));
+    img.style.transform = `scale(${lerp(1.1, 1.0, prog(t, a, .9, cin)) * lerp(1, 1.05, soft(local))}) translateY(${(-lerp(0, 42, soft(local))).toFixed(2)}px)`;
+    tag.style.opacity = (prog(t, a + .25, .35, soft) * (1 - prog(t, b - .05, .2, soft))).toFixed(3);
+    tag.style.transform = `translateY(${((1 - prog(t, a + .25, .5, cin)) * 16).toFixed(2)}px)`;
+  });
+}
+cue(2.0, 'hit', { v: .7 }); cue(3.5, 'cut'); cue(4.75, 'cut'); cue(5.75, 'whoosh');
+
+// ---------------------------------------------------------------------------
+// 02 WEBSITES
+// ---------------------------------------------------------------------------
+function s2(t) {
+  show('#s2', t, 1.6, T.agent + .1);
+  linesIn($('#h2'), t, 2.0, T.agent - .45, { stagger: .09, dur: .8 });
+}
+
+// ---------------------------------------------------------------------------
+// 03 AGENT — answers, qualifies, acts
+// ---------------------------------------------------------------------------
+const ROWH = {};
+const A = T.agent;
+const MSG = [['#m1', .4, null], ['#m2t', .95, 1.25], ['#m2', 1.25, null], ['#m3', 1.7, null], ['#m4', 2.0, null], ['#m5', 2.55, null]];
+function s3(t) {
+  show('#s3', t, A - .3, T.sys + .5);
+  const u = t - A;
+  linesIn($('#h3a'), t, A + .05, T.sys - .4, { dur: .7 });
+  // ANSWER / QUALIFY / ACT land with the moments they describe
+  $$('#h3 .ln').forEach((ln, i) => {
+    const at = A + [1.25, 2.0, 3.0][i];
+    const pin = prog(t, at, .7, cin), pout = prog(t, T.sys - .4 + i * .04, .36, exitE);
+    ln.style.transform = `translate3d(0, ${((1 - pin) * 115 - pout * 115).toFixed(3)}%, 0)`;
+  });
+  const chat = $('#chat');
+  const cin_ = prog(t, A - .25, .55, inOut);
+  chat.style.opacity = (soft(clamp((t - (A + .1)) / .2)) * (1 - prog(t, T.sys - .3, .25, soft))).toFixed(3);
+  chat.style.transform = `translateY(${(prog(t, T.sys - .35, .4, exitE) * 60).toFixed(2)}px)`;
+  // messages grow into a bottom-anchored column, so older ones scroll up
+  MSG.forEach(([id, at, gone]) => {
+    const el = $(id);
+    const p = prog(t, A + at, .42, cin);
+    const g = gone == null ? 0 : prog(t, A + gone, .12, soft);
+    const h = ROWH[id] * p * (1 - g);
+    el.style.height = h.toFixed(2) + 'px';
+    el.firstElementChild.style.opacity = (soft(clamp((t - A - at) / .22)) * (1 - g)).toFixed(3);
+    el.firstElementChild.style.transform = `translateY(${((1 - p) * 26).toFixed(2)}px)`;
+  });
+  const total = MSG.reduce((a, [id]) => a + parseFloat($(id).style.height || 0), 0);
+  const avail = $('#msgs').clientHeight - 150;
+  $('#msgs-in').style.transform = `translateY(${(-Math.max(0, total - avail)).toFixed(2)}px)`;
+  $$('#m2t .dots i').forEach((d, i) => { d.style.transform = `translateY(${(-6 * Math.max(0, Math.sin(u * 11 - i * .9))).toFixed(2)}px)`; });
+  // qualification ring fills
+  const q = prog(t, A + 2.1, .75, cin), score = Math.round(84 * q);
+  $('#ringArc').setAttribute('stroke-dashoffset', (351.86 * (1 - .84 * q)).toFixed(2));
+  $('#ringNum').textContent = score;
+  // the tap
+  const tap = A + 3.0;
+  $('#slotA .fillb').style.transform = `scaleX(${prog(t, tap + .04, .28, cin).toFixed(4)})`;
+  $('#slotA span').style.color = t >= tap + .12 ? '#f4f1ec' : 'var(--ink)';
+  const sr = $('#slotA').getBoundingClientRect(), cr = chat.getBoundingClientRect();
+  const rp = $('#ripple'), rq = clamp((t - tap) / .5);
+  rp.style.left = (sr.left - cr.left + sr.width * .45) + 'px'; rp.style.top = (sr.top - cr.top + sr.height * .55) + 'px';
+  rp.style.opacity = (t >= tap ? (1 - rq) : 0).toFixed(3); rp.style.transform = `scale(${lerp(.4, 2.6, soft(rq)).toFixed(3)})`;
+  // booked + captured
+  const to = $('#toast');
+  const tp = prog(t, A + 3.25, .55, cin);
+  to.style.transform = `translateY(${((1 - tp) * 150).toFixed(2)}px)`;
+  to.style.opacity = soft(clamp((t - A - 3.25) / .2)).toFixed(3);
+}
+cue(A + .4, 'msg'); cue(A + 1.25, 'reply'); cue(A + 1.7, 'msg'); cue(A + 2.0, 'qualify'); cue(A + 2.55, 'reply'); cue(A + 3.0, 'tap'); cue(A + 3.25, 'booked'); cue(A + 3.7, 'whoosh');
+
+// ---------------------------------------------------------------------------
+// 04 SYSTEM — the machinery behind it, on the real DreamBuilder screens
+// ---------------------------------------------------------------------------
+const S = T.sys, NODE_T = [.35, 1.2, 2.05, 2.9, 3.75], NODE_Y = [262, 392, 522, 652, 782], R_SWIN = { x: 36, y: 948, w: 1008, h: 936 };
+function s4(t) {
+  show('#s4', t, S - .1, T.proof + .6);
+  fade($('#s4k'), t, S + .05, T.proof - .5, { dy: 10 });
+  const out = T.proof - .45;
+  NODE_T.forEach((at, i) => {
+    const n = $(`#n${i + 1}`); n.style.top = (NODE_Y[i] - 60) + 'px';
+    fade(n, t, S + .05 + i * .06, out, { dy: 24, dur: .6 });
+    const lit = prog(t, S + at, .3, cin);
+    n.querySelector('.dot i').style.transform = `scale(${lit.toFixed(4)})`;
+    n.querySelector('.dot i').style.background = i === 4 ? 'var(--amber)' : 'var(--ink)';
+    n.querySelector('.dot').style.borderColor = lit > .5 ? (i === 4 ? 'var(--amber)' : 'var(--ink)') : 'var(--hair-strong)';
+    n.querySelector('.nm').style.color = `rgba(21,20,18,${lerp(.3, 1, lit).toFixed(3)})`;
+    n.querySelector('.det').style.opacity = lerp(.35, 1, lit).toFixed(3);
+  });
+  const rail = $('#rail'); rail.style.top = NODE_Y[0] + 'px'; rail.style.height = (NODE_Y[4] - NODE_Y[0]) + 'px';
+  rail.style.opacity = (prog(t, S, .3, soft) * (1 - prog(t, out, .3, soft))).toFixed(3);
+  // pulse travels node to node
+  let y = NODE_Y[0], seg = 0;
+  for (let i = 0; i < 4; i++) if (t >= S + NODE_T[i]) { seg = i; y = lerp(NODE_Y[i], NODE_Y[i + 1], prog(t, S + NODE_T[i] + .25, NODE_T[i + 1] - NODE_T[i] - .25, inOut)); }
+  if (t >= S + NODE_T[4]) y = NODE_Y[4];
+  rail.querySelector('.fill').style.transform = `scaleY(${((y - NODE_Y[0]) / (NODE_Y[4] - NODE_Y[0])).toFixed(4)})`;
+  const pl = $('#pulse'); pl.style.left = '112px'; pl.style.top = y + 'px';
+  pl.style.opacity = (prog(t, S + NODE_T[0], .2, soft) * (1 - prog(t, out, .25, soft))).toFixed(3);
+  // the real screen for each step
+  const sw = $('#swin');
+  const grow = prog(t, T.proof - .42, .42, inOut);
+  box(sw, lerpBox(R_SWIN, { x: 0, y: 356, w: W, h: 1564 }, grow)); sw.style.borderRadius = lerp(34, 0, grow) + 'px';
+  sw.style.opacity = soft(clamp((t - S - .15) / .3)).toFixed(3);
+  sw.style.transform = `translateY(${((1 - prog(t, S + .1, .8, cin)) * 120).toFixed(2)}px)`;
+  NODE_T.forEach((at, i) => {
+    const s = $(`#sw${i + 1}`), img = s.querySelector('img');
+    const a = S + at, b = i < 4 ? S + NODE_T[i + 1] : T.proof + .5;
+    const onS = t >= (i === 0 ? 0 : a) && t < b + .45; vis(s, onS); if (!onS) return;
+    s.style.zIndex = i + 1;
+    const wipe = i === 0 ? 1 : prog(t, a, .4, inOut);
+    s.style.clipPath = `inset(${((1 - wipe) * 100).toFixed(2)}% 0 0 0)`;
+    img.style.transform = `scale(${lerp(1.08, 1.0, prog(t, a, .8, cin)).toFixed(4)})`;
+  });
+  $('#swtag').style.opacity = (prog(t, S + .6, .4, soft) * (1 - prog(t, out, .2, soft))).toFixed(3);
+  $('#swtag').style.zIndex = 9;
+}
+NODE_T.forEach((x, i) => cue(S + x, i === 4 ? 'done' : 'node', { n: i }));
+cue(T.proof - .45, 'riser', { to: T.proof });
+
+// ---------------------------------------------------------------------------
+// 05 PROOF — the work is the proof
+// ---------------------------------------------------------------------------
+const P = T.proof, PROOF = [['#p1', 0, 1.0, [1.14, 1.0], [0, 0]], ['#p2', 1.0, 2.0, [1.0, 1.1], [0, -30]], ['#p3', 2.0, 3.0, [1.12, 1.0], [-20, 0]], ['#p4', 3.0, 4.0, [1.0, 1.08], [0, 0]]];
+function s5(t) {
+  show('#s5', t, P - .01, T.pos);
+  PROOF.forEach(([id, a, b, sc, pan], i) => {
+    const el = $(id), img = el.querySelector('img');
+    const on = t >= P + a && t < P + b; vis(el, on); if (!on) return;
+    const k = (t - P - a) / (b - a);
+    img.style.transform = `translate(${(pan[0] * k).toFixed(2)}px, ${(pan[1] * k).toFixed(2)}px) scale(${lerp(sc[0], sc[1], soft(k)).toFixed(4)})`;
+    $$('.band > div', el).forEach((x, j) => { x.style.opacity = soft(clamp((t - P - a - .03 - j * .05) / .16)).toFixed(3); x.style.transform = `translateY(${((1 - prog(t, P + a + j * .05, .45, cin)) * 22).toFixed(2)}px)`; });
+  });
+  const idx = Math.min(3, Math.max(0, Math.floor(t - P)));
+  $('#pcount').textContent = `0${idx + 1} / 04`;
+}
+[0, 1, 2, 3].forEach(i => cue(P + i, 'proof', { n: i }));
+
+// ---------------------------------------------------------------------------
+// 06 POSITIONING — three capabilities, one system
+// ---------------------------------------------------------------------------
+const Q = T.pos;
+const MODS = ['CRM', 'Booking', 'Follow-up', 'Calendar', 'Pipeline', 'AI assistance', 'Messaging', 'Business data'];
+const MOD_POS = MODS.map((_, i) => { const a = -Math.PI / 2 + (i + .5) / MODS.length * Math.PI * 2; return [540 + Math.cos(a) * 395, 1210 + Math.sin(a) * 330]; });
+function buildMods() { $('#mods').innerHTML = MODS.map((m, i) => `<div class="mod mono" id="md${i}" style="left:${MOD_POS[i][0]}px; top:${MOD_POS[i][1]}px">${m}</div>`).join(''); }
+function s6(t) {
+  show('#s6', t, Q - .05, T.end + .1);
+  const out = T.end - .5;
+  ['#pw1', '#pw2', '#pw3'].forEach((id, i) => {
+    const el = $(id); const at = Q + .08 + i * .5;
+    el.style.opacity = (soft(clamp((t - at) / .2)) * (1 - prog(t, out, .3, soft))).toFixed(3);
+    el.style.transform = `translate3d(${((1 - prog(t, at, .7, cin)) * -60).toFixed(2)}px, ${(prog(t, out, .4, exitE) * -30).toFixed(2)}px, 0)`;
+  });
+  MODS.forEach((m, i) => {
+    const el = $(`#md${i}`), at = Q + 1.3 + i * .07;
+    const p = prog(t, at, .5, cin);
+    el.style.opacity = (p * (1 - prog(t, out - .1, .3, soft))).toFixed(3);
+    el.style.transform = `translate(-50%, -50%) scale(${lerp(.8, 1, p).toFixed(3)})`;
+  });
+}
+// connection lines are drawn on the fx canvas so they sit above the sphere
+function drawLinks(t) {
+  fx.clearRect(0, 0, W, H);
+  if (t < Q + .5 || t > T.end + .2) return;
+  const out = 1 - prog(t, T.end - .6, .4, soft);
+  fx.lineCap = 'round';
+  // from each capability down to the core
+  ['#pw1', '#pw2', '#pw3'].forEach((id, i) => {
+    const p = prog(t, Q + .7 + i * .12, .8, inOut); if (p <= 0) return;
+    const el = $(id), y = parseFloat(el.style.top) + 38, x0 = 83;
+    fx.strokeStyle = `rgba(21,20,18,${(.55 * out).toFixed(3)})`; fx.lineWidth = 2;
+    const ex = 540, ey = 1210, c1x = x0, c1y = lerp(y, ey, .7), c2x = lerp(x0, ex, .4), c2y = ey;
+    fx.beginPath(); const N = 40; for (let k = 0; k <= N * p; k++) { const s = k / N, a = 1 - s; const X = a * a * a * x0 + 3 * a * a * s * c1x + 3 * a * s * s * c2x + s * s * s * ex, Y = a * a * a * y + 3 * a * a * s * c1y + 3 * a * s * s * c2y + s * s * s * ey; k ? fx.lineTo(X, Y) : fx.moveTo(X, Y); } fx.stroke();
+  });
+  // modules wire into the core
+  MOD_POS.forEach(([x, y], i) => {
+    const p = prog(t, Q + 1.35 + i * .07, .5, inOut); if (p <= 0) return;
+    fx.strokeStyle = `rgba(122,79,21,${(.5 * out).toFixed(3)})`; fx.lineWidth = 1.6; fx.setLineDash([6, 8]);
+    fx.beginPath(); fx.moveTo(x, y); fx.lineTo(lerp(x, 540, p * .72), lerp(y, 1210, p * .72)); fx.stroke(); fx.setLineDash([]);
+  });
+}
+cue(Q, 'impact'); cue(Q + .5, 'word'); cue(Q + 1.0, 'word'); cue(Q + 1.3, 'connect'); cue(Q + 1.9, 'ignite');
+
+// ---------------------------------------------------------------------------
+// 07 BRAND + CTA — strip it back and hold
+// ---------------------------------------------------------------------------
+const E = T.end;
+function s7(t) {
+  show('#s7', t, E - .45, 99);
+  const m = $('#end-mark');
+  m.style.opacity = prog(t, E - .22, .35, soft).toFixed(3);
+  m.style.transform = `scale(${lerp(.3, 1, prog(t, E - .25, .9, cin)).toFixed(4)})`;
+  fade($('#end-word'), t, E + .15, null, { dy: 22, dur: .8 });
+  fade($('#end-line'), t, E + .35, null, { dy: 22, dur: .8 });
+  fade($('#end-url'), t, E + .55, null, { dy: 18, dur: .8 });
+  $('#end-rule').style.transform = `scaleX(${prog(t, E + .7, .8, cin).toFixed(4)})`;
+}
+cue(E, 'end'); cue(E + .55, 'url');
+
+// ---------------------------------------------------------------------------
+function render(t) { drawWire(t); drawLinks(t); brand(t); s1(t); win(t); s2(t); s3(t); s4(t); s5(t); s6(t); s7(t); }
+window.__duration = DURATION; window.__fps = FPS; window.__scenes = T;
+window.__cues = CUES.sort((a, b) => a.t - b.t);
+window.__seek = t => { render(t); return true; };
+window.__ready = (async () => {
+  await document.fonts.load('400 100px archivo'); await document.fonts.load('400 20px geistMono'); await document.fonts.ready;
+  await Promise.all($$('img').map(i => i.decode().catch(() => null)));
+  $$('[data-fit]').forEach(h => { let fs = parseFloat(h.style.fontSize); for (let k = 0; k < 4; k++) { const w = Math.max(...$$('.ln', h).map(l => l.getBoundingClientRect().width)); if (w <= +h.dataset.fit) break; fs = Math.floor(fs * +h.dataset.fit / w * 2) / 2; h.style.fontSize = fs + 'px'; } });
+  buildGuides(); buildMods();
+  // measure natural message heights once
+  MSG.forEach(([id]) => { const el = $(id); el.style.height = 'auto'; ROWH[id] = el.getBoundingClientRect().height; });
+  render(0); return true;
+})();
+const qp = new URLSearchParams(location.search);
+if (!qp.has('render')) {
+  if (qp.has('t')) window.__ready.then(() => render(parseFloat(qp.get('t'))));
+  else window.__ready.then(() => { const t0 = performance.now(); const loop = () => { render(((performance.now() - t0) / 1000) % DURATION); requestAnimationFrame(loop); }; loop(); });
+}
+</script>
+</body>
+</html>

@@ -19,7 +19,7 @@ const workers = parseInt(opt('--workers', '4'), 10);
   const f0 = Math.round(from * fps), f1 = Math.round(to * fps);
   const vf = [scale !== 1 ? `scale=iw*${scale}:ih*${scale}:flags=lanczos` : null, 'scale=out_color_matrix=bt709:out_range=tv', 'format=yuv420p'].filter(Boolean).join(',');
   const ff = spawn('ffmpeg', ['-hide_banner', '-loglevel', 'error', '-y', '-f', 'image2pipe', '-framerate', String(fps), '-c:v', 'png', '-i', '-',
-    '-vf', vf, '-c:v', 'libx264', '-preset', scale < 1 ? 'veryfast' : 'slow', '-crf', scale < 1 ? '20' : '12', '-tune', 'animation',
+    '-vf', vf, '-c:v', 'libx264', '-preset', opt('--preset', 'slow'), '-crf', opt('--crf', '12'), '-aq-mode', '3',
     '-colorspace', 'bt709', '-color_primaries', 'bt709', '-color_trc', 'bt709', '-color_range', 'tv',
     '-r', String(fps), '-movflags', '+faststart', out], { stdio: ['pipe', 'inherit', 'inherit'] });
 

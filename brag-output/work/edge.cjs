@@ -1,0 +1,2 @@
+const { openComposition } = require('./lib.cjs');
+(async () => { const { page, close } = await openComposition(); for (const t of [0, 0.8]) { await page.evaluate(t => window.__seek(t), t); const r = await page.evaluate(() => [...document.querySelectorAll('#h1 .ln')].map(l => Math.round(l.getBoundingClientRect().right))); console.log('t', t, 'line right edges', r.join(', '), '(limit 1008)'); } await close(); })();

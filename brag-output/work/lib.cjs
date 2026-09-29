@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const { chromium } = require('/opt/node22/lib/node_modules/playwright');
 
-const COMP = path.resolve(__dirname, '../composition');
+const COMP = path.resolve(__dirname, process.env.COMP || '../composition-v2');
 const TYPES = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.woff2': 'font/woff2', '.webp': 'image/webp', '.png': 'image/png', '.jpg': 'image/jpeg', '.svg': 'image/svg+xml', '.json': 'application/json' };
 
 function serve() {
@@ -19,13 +19,13 @@ function serve() {
   });
 }
 
-async function openComposition({ width = 1080, height = 1920, pages = 1 } = {}) {
+async function openComposition({ width = 1080, height = 1920, pages = 1, dpr = parseFloat(process.env.DPR || '1') } = {}) {
   const srv = await serve();
   const browser = await chromium.launch({ args: ['--force-color-profile=srgb', '--font-render-hinting=none', '--disable-lcd-text'] });
   const url = `http://127.0.0.1:${srv.address().port}/index.html?render=1`;
   const list = [];
   for (let i = 0; i < pages; i++) {
-    const page = await browser.newPage({ viewport: { width, height }, deviceScaleFactor: 1 });
+    const page = await browser.newPage({ viewport: { width, height }, deviceScaleFactor: dpr });
     page.on('console', m => { if (['error', 'warning'].includes(m.type())) console.log('[page]', m.type(), m.text()); });
     page.on('pageerror', e => console.log('[pageerror]', e.message));
     await page.goto(url, { waitUntil: 'load' });
