@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>VelaBuilt — after hours</title>
+<meta name="viewport" content="width=1080">
+<style>
+@font-face { font-family: archivo; src: url(assets/archivo_var.woff2) format("woff2"); font-weight: 300 600; font-stretch: 100% 125%; }
+@font-face { font-family: geistMono; src: url(assets/geistmono_var.woff2) format("woff2"); font-weight: 400 500; }
+:root { --ink: #151412; --ivory: #f4f1ec; --champ: #e0c398; --amber: #e3892a; --glass: rgba(16,16,22,.42); --edge: rgba(255,255,255,.17); }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: #000; }
+body { width: 1080px; height: 1920px; overflow: hidden; font-family: archivo, sans-serif; color: var(--ivory); -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; }
+#stage { position: relative; width: 1080px; height: 1920px; overflow: hidden; background: #0b0d18; }
+.abs { position: absolute; }
+.mono { font-family: geistMono, ui-monospace, monospace; letter-spacing: .06em; }
+
+/* scene: two plate stacks, the evening one under the night one; the night stack opens through a circle */
+.stack { position: absolute; inset: 0; overflow: hidden; }
+.stack .cam { position: absolute; inset: 0; transform-origin: 50% 52%; will-change: transform; }
+.stack canvas.pl { position: absolute; inset: 0; width: 1080px; height: 1920px; }
+#nightGrade { position: absolute; inset: 0; background:
+  linear-gradient(180deg, rgba(3,5,20,.78) 0%, rgba(6,8,28,.55) 30%, rgba(8,10,30,.22) 48%, rgba(4,5,14,.12) 70%, rgba(2,3,8,.45) 100%),
+  radial-gradient(ellipse 120% 70% at 50% 75%, rgba(0,0,0,0) 40%, rgba(2,3,10,.45) 100%); }
+#dawnGrade { position: absolute; inset: 0; mix-blend-mode: soft-light; background:
+  radial-gradient(ellipse 85% 38% at 22% 47%, rgba(255,160,80,1) 0%, rgba(255,140,90,.6) 38%, rgba(255,120,90,0) 75%),
+  linear-gradient(180deg, rgba(255,175,120,.35) 0%, rgba(255,160,110,.55) 38%, rgba(255,190,140,.2) 52%, rgba(255,200,150,0) 70%); }
+#dawnWarm { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(255,186,140,.16) 0%, rgba(255,150,90,.2) 40%, rgba(255,150,90,0) 55%); mix-blend-mode: screen; }
+canvas { position: absolute; inset: 0; width: 1080px; height: 1920px; pointer-events: none; }
+
+/* type */
+.line { position: absolute; left: 0; right: 0; text-align: center; font-weight: 580; font-stretch: 106%; letter-spacing: -.012em; color: #fff; text-shadow: 0 2px 30px rgba(0,0,0,.35); white-space: nowrap; }
+#brand { position: absolute; left: 0; right: 0; text-align: center; }
+#brandMark { width: 120px; height: 145px; color: #151412; display: block; margin: 0 auto 26px; }
+#brandWord { font-size: 156px; font-weight: 600; font-stretch: 108%; letter-spacing: -.035em; color: #151412; line-height: 1; white-space: pre; }
+#brandWord .dot { display: inline-block; }
+#brandTag { margin-top: 24px; font-size: 40px; font-weight: 450; font-stretch: 106%; color: rgba(21,20,18,.78); }
+
+/* the morphing glass object */
+#obj { position: absolute; background: var(--glass); border: 1.5px solid var(--edge); -webkit-backdrop-filter: blur(26px) saturate(1.35); backdrop-filter: blur(26px) saturate(1.35);
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.14), 0 30px 80px -30px rgba(0,0,0,.6); overflow: hidden; }
+#obj .layer { position: absolute; inset: 0; }
+.ph { position: absolute; left: 44px; top: 50%; transform: translateY(-50%); font-size: 36px; color: rgba(255,255,255,.62); display: flex; align-items: center; gap: 16px; white-space: nowrap; }
+.typed { position: absolute; left: 44px; top: 50%; transform: translateY(-50%); font-size: 36px; color: #fff; white-space: nowrap; font-weight: 450; }
+.caret { display: inline-block; width: 3px; height: 40px; background: #fff; margin-left: 3px; vertical-align: -6px; }
+.send { position: absolute; right: 18px; top: 50%; width: 76px; height: 76px; margin-top: -38px; border-radius: 50%; background: #fff; display: grid; place-content: center; }
+#dots { position: absolute; inset: 0; }
+.chat { position: absolute; left: 36px; right: 36px; top: 34px; }
+.who { font-size: 20px; color: var(--champ); display: flex; align-items: center; gap: 10px; margin: 0 0 12px 4px; letter-spacing: .14em; text-transform: uppercase; }
+.who .pip { width: 9px; height: 9px; border-radius: 50%; background: var(--amber); }
+.bub { display: inline-block; max-width: 680px; white-space: pre-line; padding: 20px 26px; border-radius: 26px; font-size: 33px; line-height: 1.28; font-weight: 450; }
+.bub.a { background: rgba(255,255,255,.1); border: 1.5px solid rgba(255,255,255,.14); border-bottom-left-radius: 8px; }
+.bub.c { background: #f4f1ec; color: #151412; border-bottom-right-radius: 8px; }
+.rowc { display: flex; justify-content: flex-end; margin-top: 18px; }
+.badge { display: inline-flex; align-items: center; gap: 14px; padding: 14px 22px 14px 16px; border-radius: 999px; background: rgba(227,137,42,.16); border: 1.5px solid rgba(227,137,42,.55); color: #ffd9a8; font-size: 24px; letter-spacing: .1em; text-transform: uppercase; white-space: nowrap; }
+.ck { width: 34px; height: 34px; border-radius: 50%; background: var(--amber); display: grid; place-content: center; flex: none; }
+.ck svg { width: 20px; height: 20px; }
+.wa-h { position: absolute; left: 40px; right: 40px; top: 34px; display: flex; align-items: center; gap: 14px; font-size: 21px; color: rgba(255,255,255,.7); letter-spacing: .08em; text-transform: uppercase; }
+.wa-h .to { padding: 7px 14px; border-radius: 10px; background: rgba(255,255,255,.1); color: #fff; letter-spacing: .04em; text-transform: none; }
+.wa-h .auto { margin-left: auto; color: var(--champ); }
+.wa-b { position: absolute; left: 40px; right: 40px; top: 110px; font-size: 35px; line-height: 1.32; font-weight: 450; color: #fff; }
+.wa-b b { font-weight: 560; }
+.slots { position: absolute; left: 40px; right: 40px; top: 250px; display: flex; gap: 16px; }
+.slot { position: relative; overflow: hidden; padding: 18px 28px; border-radius: 18px; border: 1.5px solid rgba(255,255,255,.28); font-size: 28px; color: #fff; }
+.slot .fl { position: absolute; inset: 0; background: #f4f1ec; transform-origin: left; }
+.slot span { position: relative; }
+.booked { position: absolute; left: 40px; bottom: 34px; }
+.ring-l { position: absolute; inset: 0; display: grid; place-content: center; text-align: center; }
+.ring-l { justify-items: center; gap: 2px; }
+.ring-l svg { width: 30px; height: 30px; margin-bottom: 6px; }
+.ring-l b { font-size: 66px; line-height: 1; font-weight: 560; font-stretch: 104%; color: #fff; font-variant-numeric: tabular-nums; letter-spacing: -.01em; }
+.ring-l span { margin-top: 8px; font-size: 21px; color: rgba(255,255,255,.7); letter-spacing: .2em; }
+#clock { position: absolute; left: 50%; display: flex; align-items: center; gap: 12px; padding: 12px 22px; border-radius: 999px; background: rgba(10,10,16,.55); border: 1.5px solid rgba(255,255,255,.14); font-size: 26px; color: #fff; white-space: nowrap; -webkit-backdrop-filter: blur(14px); backdrop-filter: blur(14px); transform: translateX(-50%); }
+#clock svg { width: 26px; height: 26px; }
+.cpill { position: absolute; left: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden; gap: 20px; padding: 0 40px 0 26px; height: 104px; border-radius: 999px; background: rgba(12,12,14,.86); border: 1.5px solid rgba(255,255,255,.1); font-size: 40px; font-weight: 520; font-stretch: 104%; color: #fff; white-space: nowrap; transform: translateX(-50%); box-shadow: 0 24px 60px -24px rgba(0,0,0,.6); }
+.cpill .ck { width: 52px; height: 52px; }
+.cpill .ck svg { width: 28px; height: 28px; }
+#cursor { position: absolute; width: 44px; height: 56px; pointer-events: none; z-index: 30; }
+#cursor .tagc { position: absolute; left: 34px; top: 46px; padding: 6px 12px; border-radius: 9px; background: var(--amber); color: #151412; font-size: 18px; font-weight: 500; white-space: nowrap; font-family: geistMono; letter-spacing: .04em; }
+#tap { position: absolute; width: 70px; height: 70px; margin: -35px 0 0 -35px; border-radius: 50%; border: 3px solid #fff; z-index: 29; }
+
+/* end */
+#end { position: absolute; left: 0; right: 0; text-align: center; }
+#endMark { width: 150px; height: 182px; display: block; margin: 0 auto 30px; color: #151412; }
+#endWord { font-family: archivo; font-size: 74px; font-weight: 560; font-stretch: 125%; letter-spacing: .18em; color: #151412; text-transform: uppercase; }
+#endTag { margin-top: 30px; font-size: 50px; font-weight: 460; font-stretch: 106%; color: #151412; }
+#endUrl { display: inline-flex; margin-top: 54px; padding: 22px 40px; border-radius: 999px; background: #151412; color: #f4f1ec; font-size: 36px; letter-spacing: .12em; }
+#fine { position: absolute; left: 0; right: 0; top: 852px; text-align: center; font-size: 19px; color: rgba(21,20,18,.6); letter-spacing: .12em; text-transform: uppercase; }
+#demoTag { position: absolute; left: 0; right: 0; top: 0; text-align: center; font-size: 19px; color: rgba(255,255,255,.55); letter-spacing: .14em; text-transform: uppercase; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div class="stack" id="E"><div class="cam" id="camE"><canvas class="pl" id="cE"></canvas></div></div>
+  <div class="stack" id="M"><div class="cam" id="camM"><canvas class="pl" id="cM"></canvas><div id="nightGrade"></div><div id="dawnWarm"></div><div id="dawnGrade"></div></div><canvas id="sky"></canvas></div>
+
+  <div id="brand">
+    <svg id="brandMark" viewBox="17 20 66 80"><use href="#markpaths"/></svg>
+    <div id="brandWord"><span id="bw">VelaBuilt</span><span class="dot" id="bdot">.</span></div>
+    <div id="brandTag">The systems a business runs on.</div>
+  </div>
+
+  <div class="line" id="line1" style="font-size:92px">You close at six.</div>
+  <div class="line" id="line2" style="font-size:92px">Your systems don’t.</div>
+  <div class="line" id="line3" style="font-size:104px">While you sleep.</div>
+
+  <div id="clock"><svg viewBox="0 0 24 24" id="clockIcon"></svg><span id="clockTxt">11:42 PM</span></div>
+
+  <div id="obj">
+    <div class="layer" id="Lpill">
+      <div class="ph" id="ph"><svg width="30" height="30" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14" stroke="rgba(255,255,255,.7)" stroke-width="2" stroke-linecap="round"/></svg>Ask about your project</div>
+      <div class="typed" id="typed"><span id="typedTxt"></span><span class="caret" id="caret"></span></div>
+      <div class="send" id="send"><svg width="34" height="34" viewBox="0 0 24 24"><path d="M12 19V5M5.5 11.5 12 5l6.5 6.5" fill="none" stroke="#151412" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    </div>
+    <canvas id="dots"></canvas>
+    <div class="layer" id="Lagent">
+      <div class="chat">
+        <div class="who mono"><span class="pip"></span>AI agent · 11:42 PM</div>
+        <div><span class="bub a" id="aTxt"></span></div>
+        <div class="rowc" id="cRow"><span class="bub c">About 4 × 6 m. Next month.</span></div>
+        <div style="margin-top:24px" id="qRow"><span class="badge mono"><span class="ck"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#151412" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Qualified · added to CRM</span></div>
+      </div>
+    </div>
+    <div class="layer" id="Lwa">
+      <div class="wa-h mono">WhatsApp <span class="to">Tendai</span><span class="auto">Sent automatically</span></div>
+      <div class="wa-b">Hi Tendai, thanks for the pergola enquiry.<br><b>Free site visit</b> — which suits you?</div>
+      <div class="slots"><div class="slot" id="slotA"><div class="fl"></div><span id="slotAT">Thu · 10:00</span></div><div class="slot"><span>Fri · 14:00</span></div></div>
+      <div class="booked" id="booked"><span class="badge mono"><span class="ck"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#151412" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span>Site visit booked · Thu 10:00</span></div>
+    </div>
+    <div class="layer" id="Lring">
+      <svg id="ringSvg" style="position:absolute;inset:0;width:100%;height:100%" viewBox="0 0 240 240"><circle cx="120" cy="120" r="96" fill="none" stroke="rgba(255,255,255,.18)" stroke-width="7"/><circle id="ringArc" cx="120" cy="120" r="96" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" transform="rotate(-90 120 120)" stroke-dasharray="603.19" stroke-dashoffset="603.19"/></svg>
+      <div class="ring-l"><svg viewBox="0 0 24 24" id="ringIcon"></svg><b id="ringTime">11:58</b><span class="mono" id="ringAp">PM</span></div>
+    </div>
+  </div>
+
+  <div class="cpill" id="ck1"><span class="ck"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#151412" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lbl">Enquiry answered</span></div>
+  <div class="cpill" id="ck2"><span class="ck"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#151412" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lbl">Lead in your CRM</span></div>
+  <div class="cpill" id="ck3"><span class="ck"><svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5" fill="none" stroke="#151412" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lbl">Site visit booked</span></div>
+
+  <div id="tap"></div>
+  <div id="cursor"><svg width="44" height="56" viewBox="0 0 22 28"><path d="M2 2v20.5l5.6-5.3 3.5 8.2 3.4-1.5-3.4-8h7.6z" fill="#fff" stroke="#151412" stroke-width="1.6" stroke-linejoin="round"/></svg><span class="tagc">Tendai</span></div>
+
+  <div id="end">
+    <svg id="endMark" viewBox="17 20 66 80"><use href="#markpaths"/></svg>
+    <div id="endWord">VelaBuilt</div>
+    <div id="endTag">The systems a business runs on.</div>
+    <div class="mono" id="endUrl"><span id="endUrlT">velabuilt.com</span></div>
+  </div>
+  <div class="mono" id="demoTag">System demo · sample data</div>
+  <div class="mono" id="fine">3D scene: DreamBuilder, a VelaBuilt build</div>
+</div>
+
+<svg width="0" height="0" style="position:absolute"><defs><g id="markpaths" fill="currentColor">
+  <path d="M21.2 28.2 L29.0 31.8 L50.8 90.2 L46.2 96.8 Z"/>
+  <path d="M45.0 24.6 C63.0 22.2 74.6 30.2 72.6 42.2 C70.8 51.6 62.6 57.0 53.6 57.8 C61.0 51.8 66.2 44.6 64.8 37.4 C63.4 30.6 55.4 25.8 45.0 24.6 Z"/>
+  <path d="M51.0 59.4 C70.4 57.2 82.4 66.4 79.8 79.4 C77.4 91.0 66.0 96.6 54.4 95.6 C64.8 90.0 71.4 81.4 69.8 72.6 C68.2 64.6 61.4 60.4 51.0 59.4 Z"/>
+</g></defs></svg>
+
+<script>
+// ---------------------------------------------------------------------------
+// One continuous shot of DreamBuilder's garden, sunset → night → sunrise, while a single
+// glass object morphs through the enquiry. Every frame is a pure function of t.
+// ---------------------------------------------------------------------------
+const W = 1080, H = 1920, FPS = 30, DURATION = 24.0;
+const qp = new URLSearchParams(location.search);
+const CUES = [];
+const cue = (t, type, extra = {}) => CUES.push({ t: +t.toFixed(3), type, ...extra });
+
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const lerp = (a, b, x) => a + (b - a) * x;
+function bezier(x1, y1, x2, y2) {
+  const cx = 3 * x1, bx = 3 * (x2 - x1) - cx, ax = 1 - cx - bx, cy = 3 * y1, by = 3 * (y2 - y1) - cy, ay = 1 - cy - by;
+  const sx = t => ((ax * t + bx) * t + cx) * t, sy = t => ((ay * t + by) * t + cy) * t, dx = t => (3 * ax * t + 2 * bx) * t + cx;
+  return x => { if (x <= 0) return 0; if (x >= 1) return 1; let t = x; for (let i = 0; i < 8; i++) { const e = sx(t) - x, d = dx(t); if (Math.abs(e) < 1e-6 || Math.abs(d) < 1e-6) break; t -= e / d; } let lo = 0, hi = 1; if (Math.abs(sx(t) - x) > 1e-5) { t = x; for (let i = 0; i < 30; i++) { const v = sx(t); if (Math.abs(v - x) < 1e-6) break; if (v < x) lo = t; else hi = t; t = (lo + hi) / 2; } } return sy(t); };
+}
+const cin = bezier(.16, 1, .3, 1), inOut = bezier(.65, 0, .35, 1), exitE = bezier(.55, 0, .75, .2), soft = bezier(.33, 0, .2, 1), morph = bezier(.7, 0, .2, 1);
+const prog = (t, a, d, e = cin) => e(clamp((t - a) / d));
+function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const $ = s => document.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const op = (el, v) => { el.style.opacity = clamp(v).toFixed(4); el.style.visibility = v > .002 ? 'visible' : 'hidden'; };
+const DPR = window.devicePixelRatio || 1;
+
+// layout anchors (9:16); the house sits around the vertical centre of the plate
+const Y = { brand: 300, line: 480, obj: 640, sleep: 250, ck: 470, end: 250 };
+
+// ---------------------------------------------------------------------------
+// plates: the real DreamBuilder lighting sequence (d00 day → d09 → settled blue hour); played
+// forwards it is the sunset, played backwards (lamps off, sky lifting) it is the sunrise
+// ---------------------------------------------------------------------------
+const NAMES = [...Array.from({ length: 10 }, (_, i) => `d${String(i).padStart(2, '0')}`), 'night'];
+const NP = NAMES.length, plates = NAMES.map(n => { const im = new Image(); im.src = `assets/plates/${n}.webp`; return im; });
+const PL = { sunA: 0, sunB: 3.0, night: NP - 1, dawn: .6 };   // day → lamps on → blue hour
+const plateCtx = {};
+function setPlates(id, f) {
+  // f is a fractional plate index: draw floor and ceil crossfaded, from decoded images (synchronous)
+  let g = plateCtx[id];
+  if (!g) { const c = $(id); c.width = W * DPR; c.height = H * DPR; g = plateCtx[id] = c.getContext('2d'); g.imageSmoothingQuality = 'high'; }
+  const i0 = clamp(Math.floor(f), 0, NP - 1), i1 = clamp(i0 + 1, 0, NP - 1), k = f - Math.floor(f);
+  const ok = im => im && im.complete && im.naturalWidth > 0;
+  g.globalAlpha = 1; if (ok(plates[i0])) g.drawImage(plates[i0], 0, 0, W * DPR, H * DPR);
+  if (k > .002 && i1 !== i0 && ok(plates[i1])) { g.globalAlpha = k; g.drawImage(plates[i1], 0, 0, W * DPR, H * DPR); g.globalAlpha = 1; }
+}
+function plateEvening(t) { return lerp(PL.sunA, PL.sunB, inOut(clamp((t - .3) / 2.6))); }
+function plateMain(t) {
+  if (t < 14.5) return PL.night;
+  return lerp(PL.night, PL.dawn, inOut(clamp((t - 14.6) / 3.0)));
+}
+
+// stars, only over the sky, only at night
+const sky = (() => { const c = $('#sky'); c.width = W * DPR; c.height = H * DPR; const x = c.getContext('2d'); x.scale(DPR, DPR); return x; })();
+const R0 = rng(11);
+const STARS = Array.from({ length: 170 }, () => ({ x: R0() * W, y: Math.pow(R0(), 1.3) * 900, r: .6 + R0() * 1.6, ph: R0() * 6.28, sp: .6 + R0() * 1.4 }));
+function drawSky(t, night) {
+  sky.clearRect(0, 0, W, H);
+  if (night < .01) return;
+  for (const s of STARS) {
+    const tw = .45 + .55 * Math.sin(t * s.sp * 2 + s.ph) ** 2;
+    sky.fillStyle = `rgba(255,255,255,${(night * tw * (1 - s.y / 960) * .9).toFixed(3)})`;
+    sky.beginPath(); sky.arc(s.x, s.y, s.r, 0, 7); sky.fill();
+  }
+}
+
+function scene(t) {
+  // a slow push through the whole piece: one camera, one take
+  const push = `scale(${lerp(1.0, 1.075, soft(t / DURATION)).toFixed(4)})`;
+  $('#camE').style.transform = push; $('#camM').style.transform = push;
+  // evening stack: sunset with the lamps coming on, under the brand
+  const eOn = t < 3.6; $('#E').style.display = eOn ? 'block' : 'none';
+  if (eOn) setPlates('#cE', plateEvening(t));
+  // night stack opens through the full stop of "VelaBuilt."
+  const r = t < 2.72 ? 0 : lerp(0, 1.25 * Math.hypot(W, H), morph(clamp((t - 2.72) / .78)));
+  const d = dotCentre();
+  $('#M').style.clipPath = t < 3.55 ? `circle(${r.toFixed(1)}px at ${d.x.toFixed(1)}px ${d.y.toFixed(1)}px)` : 'none';
+  $('#M').style.display = t >= 2.7 ? 'block' : 'none';
+  if (t >= 2.7) setPlates('#cM', plateMain(t));
+  const night = 1 - prog(t, 14.6, 2.6, inOut);
+  $('#nightGrade').style.opacity = night.toFixed(4);
+  $('#dawnGrade').style.opacity = (prog(t, 15.2, 2.4, inOut) * .9).toFixed(4);
+  $('#dawnWarm').style.opacity = prog(t, 15.4, 2.4, inOut).toFixed(4);
+  drawSky(t, night);
+}
+cue(0, 'open'); cue(2.72, 'portal');
+
+// ---------------------------------------------------------------------------
+// brand: "VelaBuilt." over the sunset; the name deletes back to its full stop
+// ---------------------------------------------------------------------------
+const NAME = 'VelaBuilt';
+let dotC = { x: W / 2, y: Y.brand };
+function dotCentre() { return dotC; }
+function brand(t) {
+  const el = $('#brand');
+  el.style.top = Y.brand - 200 + 'px';
+  const on = t < 2.95; el.style.display = on ? 'block' : 'none'; if (!on) return;
+  const inP = prog(t, 0, .9, cin);
+  $('#brandMark').style.opacity = (prog(t, .05, .5, soft) * (1 - prog(t, 1.85, .25, soft))).toFixed(3);
+  $('#brandMark').style.transform = `translateY(${((1 - inP) * 20).toFixed(1)}px)`;
+  $('#brandTag').style.opacity = (prog(t, .35, .6, soft) * (1 - prog(t, 1.8, .25, soft))).toFixed(3);
+  $('#brandTag').style.transform = `translateY(${((1 - prog(t, .35, .9, cin)) * 16).toFixed(1)}px)`;
+  // backspace from 2.0 to 2.45
+  const n = Math.max(0, NAME.length - Math.floor(clamp((t - 2.0) / .45) * (NAME.length + .999)));
+  $('#bw').textContent = NAME.slice(0, n);
+  const word = $('#brandWord');
+  word.style.opacity = prog(t, .12, .5, soft).toFixed(3);
+  word.style.filter = `blur(${((1 - prog(t, .12, .7, cin)) * 12).toFixed(2)}px)`;
+  const dr = $('#bdot').getBoundingClientRect();
+  dotC = { x: dr.left + dr.width / 2, y: dr.top + dr.height * .77 };
+  // the full stop swells just before it opens
+  $('#bdot').style.transform = `scale(${lerp(1, 1.5, prog(t, 2.45, .27, inOut)).toFixed(3)})`;
+  $('#bdot').style.transformOrigin = '50% 77%';
+}
+for (let i = 0; i < NAME.length; i++) cue(2.0 + i * .45 / NAME.length, 'del');
+
+// ---------------------------------------------------------------------------
+// narrative lines
+// ---------------------------------------------------------------------------
+function textBeat(el, t, a, b, y) {
+  el.style.top = y + 'px';
+  const pin = prog(t, a, .7, cin), pout = prog(t, b - .3, .3, exitE);
+  op(el, pin * (1 - pout));
+  el.style.filter = `blur(${((1 - pin) * 14 + pout * 10).toFixed(2)}px)`;
+  el.style.transform = `translateY(${((1 - pin) * 26 - pout * 18).toFixed(1)}px)`;
+}
+function lines(t) {
+  textBeat($('#line1'), t, 3.55, 5.05, Y.line);
+  textBeat($('#line2'), t, 5.0, 6.5, Y.line);
+  textBeat($('#line3'), t, 14.25, 17.45, Y.sleep);
+}
+cue(3.55, 'line'); cue(5.0, 'line'); cue(14.25, 'sleep');
+
+// ---------------------------------------------------------------------------
+// the glass object: one shape, every state
+// ---------------------------------------------------------------------------
+const BOX = {
+  hidden: { w: 520, h: 96, r: 48 },
+  pill:   { w: 900, h: 116, r: 58 },
+  bar:    { w: 560, h: 30, r: 15 },
+  ring0:  { w: 150, h: 150, r: 75 },
+  agent:  { w: 920, h: 440, r: 36 },
+  wa:     { w: 920, h: 480, r: 36 },
+  ring:   { w: 300, h: 300, r: 150 },
+  solid:  { w: 300, h: 300, r: 150 },
+};
+const KEYS = [
+  [6.25, 'hidden'], [6.75, 'pill'], [9.0, 'pill'], [9.3, 'bar'], [9.55, 'ring0'], [9.85, 'ring0'], [10.25, 'agent'],
+  [11.95, 'agent'], [12.05, 'wa'], [14.15, 'wa'], [14.6, 'ring'], [17.55, 'ring'], [17.8, 'solid'],
+];
+function objBox(t) {
+  let k = 0; while (k < KEYS.length - 1 && t >= KEYS[k + 1][0]) k++;
+  const [ta, a] = KEYS[k], [tb, b] = KEYS[Math.min(k + 1, KEYS.length - 1)];
+  const x = tb > ta ? morph(clamp((t - ta) / (tb - ta))) : 1;
+  const A = BOX[a], B = BOX[b];
+  return { w: lerp(A.w, B.w, x), h: lerp(A.h, B.h, x), r: lerp(A.r, B.r, x) };
+}
+const TYPE = 'Can you quote a pergola for our garden?';
+const T_TYPE = [7.2, 8.65], T_SEND = 8.95;
+const AGENT = 'Happy to. Roughly how big —\nand how soon?';
+const DOTS = (() => { const r = rng(5); return Array.from({ length: 18 }, (_, i) => ({ a: i / 18 * Math.PI * 2, j: r() })); })();
+const dctx = (() => { const c = $('#dots'); c.width = 400 * DPR; c.height = 400 * DPR; c.style.width = '400px'; c.style.height = '400px'; const x = c.getContext('2d'); x.scale(DPR, DPR); return x; })();
+function obj(t) {
+  const el = $('#obj');
+  const on = t >= 6.25 && t < 18.0;
+  el.style.display = on ? 'block' : 'none'; if (!on) return;
+  const b = objBox(t);
+  el.style.width = b.w + 'px'; el.style.height = b.h + 'px'; el.style.borderRadius = b.r + 'px';
+  el.style.left = (W / 2 - b.w / 2) + 'px'; el.style.top = (Y.obj - b.h / 2) + 'px';
+  $('#demoTag').style.top = (Y.obj + b.h / 2 + 30) + 'px';
+  // appears out of the line it replaces
+  el.style.opacity = (prog(t, 6.25, .35, soft) * (1 - prog(t, 17.8, .2, soft))).toFixed(3);
+  // solid at the end: the ring fills and goes dark, then hands over to the checklist pills
+  const solid = prog(t, 17.5, .3, soft);
+  el.style.background = solid > 0 ? `rgba(12,12,14,${lerp(.42, .9, solid).toFixed(3)})` : '';
+
+  // pill: placeholder, typing, send
+  const pillOn = t < 9.25;
+  op($('#Lpill'), pillOn ? prog(t, 6.6, .3, soft) * (1 - prog(t, 9.0, .2, soft)) : 0);
+  const typed = Math.floor(clamp((t - T_TYPE[0]) / (T_TYPE[1] - T_TYPE[0])) * TYPE.length);
+  $('#typedTxt').textContent = TYPE.slice(0, typed);
+  op($('#ph'), 1 - prog(t, T_TYPE[0] - .2, .2, soft));
+  op($('#typed'), prog(t, T_TYPE[0] - .05, .1, soft));
+  $('#caret').style.opacity = (t < T_SEND && Math.floor(t * 3.2) % 2 === 0) || (t >= T_TYPE[0] && t < T_TYPE[1]) ? '1' : '0';
+  const sendIn = prog(t, T_TYPE[0] + .2, .4, cin);
+  $('#send').style.transform = `scale(${(sendIn * (1 - .12 * Math.exp(-Math.pow((t - T_SEND) / .06, 2)))).toFixed(3)})`;
+  // thinking: dots orbit inside the ring
+  const thinking = t >= 9.35 && t < 10.15;
+  const dc = $('#dots'); dc.style.left = (b.w / 2 - 200) + 'px'; dc.style.top = (b.h / 2 - 200) + 'px';
+  dctx.clearRect(0, 0, 400, 400);
+  if (thinking) {
+    const a = prog(t, 9.4, .2, soft) * (1 - prog(t, 9.95, .2, soft));
+    DOTS.forEach((d, i) => {
+      const ang = d.a + t * 3.4, rr = 44 + 6 * Math.sin(t * 6 + i);
+      const lit = .35 + .65 * Math.max(0, Math.cos(ang * 1 - t * 9));
+      dctx.fillStyle = `rgba(255,255,255,${(a * lit).toFixed(3)})`;
+      dctx.beginPath(); dctx.arc(200 + Math.cos(ang) * rr, 200 + Math.sin(ang) * rr, 4.2, 0, 7); dctx.fill();
+    });
+  }
+  // agent: answers, the customer replies, the lead is qualified
+  const agentOn = t >= 10.1 && t < 12.15;
+  op($('#Lagent'), agentOn ? prog(t, 10.15, .3, soft) * (1 - prog(t, 11.95, .15, soft)) : 0);
+  const aw = AGENT.split(' '), na = Math.floor(clamp((t - 10.35) / .65) * aw.length + .999);
+  $('#aTxt').textContent = t < 10.35 ? '' : aw.slice(0, na).join(' ');
+  op($('#cRow'), prog(t, 11.05, .25, soft)); $('#cRow').style.transform = `translateY(${((1 - prog(t, 11.05, .4, cin)) * 18).toFixed(1)}px)`;
+  op($('#qRow'), prog(t, 11.45, .22, soft)); $('#qRow').style.transform = `scale(${lerp(.85, 1, prog(t, 11.45, .4, cin)).toFixed(3)})`; $('#qRow').style.transformOrigin = 'left center';
+  // WhatsApp follow-up: sent automatically; the customer taps a time
+  const waOn = t >= 12.0 && t < 14.4;
+  op($('#Lwa'), waOn ? prog(t, 12.1, .3, soft) * (1 - prog(t, 14.15, .2, soft)) : 0);
+  $('#slotA .fl').style.transform = `scaleX(${prog(t, 13.2, .25, cin).toFixed(3)})`;
+  $('#slotAT').style.color = t >= 13.3 ? '#151412' : '#fff';
+  op($('#booked'), prog(t, 13.45, .25, soft)); $('#booked').style.transform = `translateY(${((1 - prog(t, 13.45, .4, cin)) * 14).toFixed(1)}px)`;
+  // ring: night passes
+  const ringOn = t >= 14.4;
+  op($('#Lring'), ringOn ? prog(t, 14.5, .3, soft) * (1 - prog(t, 17.6, .2, soft)) : 0);
+  // the arc is the night: 11:58 PM round to 6:42 AM
+  const pct = inOut(clamp((t - 14.7) / 2.6));
+  $('#ringArc').setAttribute('stroke-dashoffset', (603.19 * (1 - pct)).toFixed(2));
+  $('#ringArc').setAttribute('stroke', pct > .98 ? '#ffd9a8' : '#fff');
+  const [hm, ap] = fmt(23 * 60 + 58 + pct * (6 * 60 + 44)).split(' ');
+  $('#ringTime').textContent = hm; $('#ringAp').textContent = ap;
+  const day = pct > .97;
+  if ($('#ringIcon').dataset.k !== String(day)) { $('#ringIcon').innerHTML = day ? SUN : MOON; $('#ringIcon').dataset.k = String(day); }
+}
+cue(6.35, 'pill');
+for (let i = 0; i < TYPE.length; i++) if (TYPE[i] !== ' ') cue(T_TYPE[0] + i * (T_TYPE[1] - T_TYPE[0]) / TYPE.length, 'key', { i });
+cue(T_SEND, 'send'); cue(9.35, 'think'); cue(10.3, 'reply'); cue(11.05, 'msg'); cue(11.45, 'qualified'); cue(12.15, 'sent'); cue(13.2, 'tap'); cue(13.45, 'booked');
+
+// clock chip: 11:42 PM through the night to 6:42 AM
+const MOON = '<path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" fill="#e0c398"/>';
+const SUN = '<circle cx="12" cy="12" r="4.5" fill="#ffc46b"/><g stroke="#ffc46b" stroke-width="2" stroke-linecap="round"><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></g>';
+function fmt(min) { min = ((min % 1440) + 1440) % 1440; let h = Math.floor(min / 60), m = Math.floor(min % 60); const ap = h >= 12 ? 'PM' : 'AM'; h = h % 12 || 12; return `${h}:${String(m).padStart(2, '0')} ${ap}`; }
+function clock(t) {
+  const el = $('#clock');
+  const on = t >= 6.7 && t < 9.2;
+  op(el, on ? prog(t, 6.75, .3, soft) * (1 - prog(t, 8.95, .2, soft)) : 0);
+  el.style.top = (Y.obj - 150) + 'px';
+  $('#clockTxt').textContent = '11:42 PM';
+  if (!$('#clockIcon').dataset.k) { $('#clockIcon').innerHTML = MOON; $('#clockIcon').dataset.k = '1'; }
+}
+cue(17.3, 'dawn');
+
+// checklist: the ring goes solid and splits into three; then the labels go, the three capsules
+// merge, and the merged capsule becomes the end card's url pill (one object to the last frame)
+const URLBOX = { cy: 727.5, w: 417, h: 91 };   // #endUrl at rest (measured)
+const CKW = {};                                 // natural pill widths, read once fonts are in
+function checklist(t) {
+  const ids = ['#ck1', '#ck2', '#ck3'];
+  const g = prog(t, 20.5, .5, morph), content = 1 - prog(t, 20.3, .2, soft);
+  ids.forEach((id, i) => {
+    const el = $(id);
+    const s = prog(t, 17.85 + i * .08, .55, cin);
+    const y = lerp(Y.obj, Y.ck + i * 140, s), h = lerp(104, URLBOX.h, g);
+    el.style.top = (lerp(y, URLBOX.cy, g) - h / 2) + 'px';
+    el.style.height = h + 'px';
+    el.style.width = CKW[id] && g > 0 ? lerp(CKW[id], URLBOX.w, g) + 'px' : '';
+    el.style.background = g > 0 ? `rgba(${lerp(12, 21, g).toFixed(1)},${lerp(12, 20, g).toFixed(1)},${lerp(14, 18, g).toFixed(1)},${lerp(.86, 1, g).toFixed(3)})` : '';
+    el.style.borderColor = `rgba(255,255,255,${(.1 * (1 - g)).toFixed(3)})`;
+    el.style.boxShadow = `0 24px 60px -24px rgba(0,0,0,${(.6 * (1 - g)).toFixed(3)})`;
+    // the middle capsule carries on as the url pill; the other two dissolve into it
+    const keep = i === 1 ? 1 : 1 - prog(t, 20.8, .2, soft);
+    op(el, t < 21.0 ? prog(t, 17.8, .15, soft) * keep : 0);
+    el.style.transform = `translateX(-50%) scale(${lerp(.6, 1, s).toFixed(3)})`;
+    const ck = el.querySelector('.ck'); const p = prog(t, 18.25 + i * .32, .35, cin);
+    ck.style.transform = `scale(${p.toFixed(3)})`;
+    const lbl = Math.min(content, prog(t, 18.0 + i * .06, .22, soft));
+    ck.style.opacity = lbl.toFixed(3); el.querySelector('.lbl').style.opacity = lbl.toFixed(3);
+  });
+}
+[0, 1, 2].forEach(i => cue(18.25 + i * .32, 'check', { n: i }));
+
+// cursor: the customer, sending and picking a time
+function cursor(t) {
+  const el = $('#cursor');
+  // element top-left = target − 4px (the arrow's tip)
+  const path = [[6.9, 760, 900], [8.5, 905, 662], [8.85, 926, 632], [9.3, 900, 760], [12.4, 990, 980], [13.05, 211, 678], [13.25, 211, 678], [14.1, 420, 900]];
+  let k = 0; while (k < path.length - 2 && t >= path[k + 1][0]) k++;
+  const [ta, xa, ya] = path[k], [tb, xb, yb] = path[k + 1];
+  const x = inOut(clamp((t - ta) / (tb - ta)));
+  el.style.left = lerp(xa, xb, x) + 'px'; el.style.top = lerp(ya, yb, x) + 'px';
+  op(el, (t < 9.6 ? prog(t, 6.9, .3, soft) * (1 - prog(t, 9.3, .3, soft)) : prog(t, 12.35, .25, soft) * (1 - prog(t, 13.35, .25, soft))));
+  const tp = $('#tap');
+  const tt = t < 11 ? T_SEND : 13.2, q = clamp((t - tt) / .45);
+  tp.style.left = (t < 11 ? 932 : 220) + 'px'; tp.style.top = (t < 11 ? 640 : 686) + 'px';
+  op(tp, t >= tt && q < 1 ? (1 - q) * .9 : 0); tp.style.transform = `scale(${lerp(.4, 1.9, soft(q)).toFixed(3)})`;
+}
+
+// end card on the morning plate
+function end(t) {
+  const el = $('#end');
+  el.style.top = Y.end + 'px';
+  const on = t >= 20.7; el.style.display = on ? 'block' : 'none';
+  const a = (s, d) => prog(t, s, d, cin);
+  $('#endMark').style.opacity = prog(t, 20.8, .4, soft).toFixed(3);
+  $('#endMark').style.transform = `scale(${lerp(.6, 1, a(20.75, .8)).toFixed(3)})`;
+  [['#endWord', 21.0], ['#endTag', 21.2]].forEach(([id, s]) => {
+    const e = $(id); e.style.opacity = prog(t, s, .4, soft).toFixed(3); e.style.transform = `translateY(${((1 - a(s, .8)) * 22).toFixed(1)}px)`;
+  });
+  $('#endUrl').style.opacity = t >= 21.0 ? '1' : '0';
+  $('#endUrlT').style.opacity = prog(t, 21.45, .4, soft).toFixed(3);
+  $('#endUrlT').style.transform = `translateY(${((1 - a(21.45, .7)) * 10).toFixed(1)}px)`;
+  op($('#fine'), prog(t, 21.6, .5, soft));
+  op($('#demoTag'), prog(t, 6.9, .4, soft) * (1 - prog(t, 17.4, .4, soft)));
+}
+cue(20.75, 'end'); cue(21.45, 'url');
+
+function render(t) { scene(t); brand(t); lines(t); obj(t); clock(t); checklist(t); cursor(t); end(t); }
+window.__duration = DURATION; window.__fps = FPS; window.__scenes = { brand: 0, night: 2.72, enquiry: 6.25, agent: 9.35, followup: 12.0, sleep: 14.25, morning: 17.5, end: 20.75 };
+window.__cues = CUES.sort((a, b) => a.t - b.t);
+window.__seek = t => { render(t); return true; };
+window.__ready = (async () => {
+  await document.fonts.load('600 100px archivo'); await document.fonts.load('400 20px geistMono'); await document.fonts.ready;
+  await Promise.all(plates.map(i => i.decode().catch(() => null)));
+  ['#ck1', '#ck2', '#ck3'].forEach(id => { const el = $(id); el.style.width = ''; CKW[id] = el.offsetWidth; });
+  render(0); return true;
+})();
+if (!qp.has('render')) {
+  if (qp.has('t')) window.__ready.then(() => render(parseFloat(qp.get('t'))));
+  else window.__ready.then(() => { const t0 = performance.now(); const loop = () => { render(((performance.now() - t0) / 1000) % DURATION); requestAnimationFrame(loop); }; loop(); });
+}
+</script>
+</body>
+</html>

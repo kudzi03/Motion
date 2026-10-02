@@ -1,6 +1,32 @@
 # VelaBuilt showreel
 
-## v2 (current)
+## v3: "After hours" (current)
+
+- `after-hours-v3.mp4`: 1080×1920, 30fps, 24.0s. H.264 High, a single encode at CRF 8, + AAC 320k, -14 LUFS (true peak -1.4 dBTP). Rendered at 2160×3840 and downscaled with Lanczos.
+- `after-hours-v3.jpg`: the poster (t=1.5, brand over the garden).
+- `share-copy-v3.txt`: caption.
+- `v3-plan.md`: the idea, the second-by-second plan, and what is real versus sample.
+
+One continuous shot of DreamBuilder's garden, a real VelaBuilt build, running from sunset to night to sunrise.
+- **The light:** it is DreamBuilder's own lighting model, recorded live on a virtual clock. The sunrise is the same sequence played backwards.
+- **The enquiry:** a single glass object morphs through the whole enquiry: question, AI agent, qualification, WhatsApp follow-up, booking.
+- **The end:** the object closes as three ticked pills that merge into the velabuilt.com pill.
+- **Sample data:** the conversation is sample data and is labelled *System demo · sample data* on screen.
+
+### Rebuild v3
+
+```bash
+cd work
+node capture/timelapse2.cjs 16 150          # (optional) re-record the plates → capture/plates/seq2/
+COMP=../composition-v3 node cues.cjs cues3.json && python3 audio3.py    # score → score3.wav
+ffmpeg -y -i score3.wav -af "volume=0.3dB,alimiter=limit=0.85:attack=3:release=60:level=disabled" -c:a pcm_s24le score3_norm.wav   # → -14 LUFS
+COMP=../composition-v3 DPR=2 node render.cjs video3hq.mp4 --scale 0.5 --crf 8   # supersampled master
+bash finalize3.sh                            # → ../after-hours-v3.mp4, ../after-hours-v3.jpg
+```
+
+To preview, serve `composition-v3/` and open `index.html`. It loops; use `?t=12.7` to pin a frame.
+
+## v2
 
 - `showreel-v2.mp4`: 1080×1920, 30fps, 25.0s. H.264 High, a single encode at CRF 8 (no generational loss), + AAC 320k, -14 LUFS. Every frame is rendered at 2160×3840 and downscaled with Lanczos, so thin lines and small UI text hold up under platform compression. Frame 0 is the poster.
 - `showreel-v2.jpg`: the poster (frame 0).
